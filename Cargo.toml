@@ -3,6 +3,11 @@ edition = "2021"
 name = "serenityjs_protocol"
 version = "0.0.0"
 
+[workspace]
+members = [
+  "crates/*"
+]
+
 [lib]
 crate-type = ["cdylib"]
 
@@ -10,6 +15,7 @@ crate-type = ["cdylib"]
 # Default enable napi4 feature, see https://nodejs.org/api/n-api.html#node-api-version-matrix
 napi = { version = "2.12.2", default-features = false, features = ["napi8"] }
 napi-derive = "2.12.2"
+protocol-derive = { path = "crates/protocol-derive" }
 
 [build-dependencies]
 napi-build = "2.0.1"

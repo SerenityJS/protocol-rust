@@ -1,9 +1,20 @@
 #![deny(clippy::all)]
 
-use napi::bindgen_prelude::*;
+// use protocol_derive::*;
 
 #[macro_use]
 extern crate napi_derive;
+
+use napi::bindgen_prelude::*;
+
+// #[napi(constructor)]
+// #[derive(Packet)]
+// #[packet(id = 0x07)]
+// struct TestPacket {
+//   pub test: String,
+//   pub bruh: u8,
+//   pub foo: i32,
+// }
 
 #[napi(object)]
 pub struct BehaviourPackInfo {
@@ -43,45 +54,78 @@ impl ResourcePacksInfoPacket {
   }
 }
 
+fn write_bool(buffer: &mut Vec<u8>, value: bool) {
+  buffer.push(if value { 1 } else { 0 });
+}
+
+fn write_string(buffer: &mut Vec<u8>, value: String) {
+  buffer.push(value.len() as u8);
+  buffer.extend(value.as_bytes());
+}
+
+fn write_bigint(buffer: &mut Vec<u8>, value: BigInt) {
+  buffer.extend(value.get_u64().1.to_be_bytes().iter());
+}
+
+fn write_u8(buffer: &mut Vec<u8>, value: u8) {
+  buffer.push(value);
+}
+
+fn read_bool(data: &mut impl Iterator<Item = u8>) -> bool {
+  data.next().unwrap() == 1
+}
+
+fn read_string(data: &mut impl Iterator<Item = u8>) -> String {
+  let len = data.next().unwrap() as usize;
+  let mut string = String::new();
+  for _ in 0..len {
+    string.push(data.next().unwrap() as char);
+  }
+  string
+}
+
+fn read_bigint(data: &mut impl Iterator<Item = u8>) -> BigInt {
+  let mut bytes = [0; 8];
+  for i in 0..8 {
+    bytes[i] = data.next().unwrap();
+  }
+  BigInt::from(u64::from_be_bytes(bytes))
+}
+
+fn read_u8(data: &mut impl Iterator<Item = u8>) -> u8 {
+  data.next().unwrap()
+}
+
 
 // Generates raknet packet buffer for resource packs info minecraft bedrock edition packet
 #[napi]
 pub fn serialize_resource_packs_info(info: ResourcePacksInfoPacket) -> Vec<u8> {
   let mut buffer = Vec::new();
-  buffer.push(ResourcePacksInfoPacket::packet_id());
-  buffer.push(if info.must_accept { 1 } else { 0 });
-  buffer.push(if info.has_scripts { 1 } else { 0 });
-  buffer.push(info.behaviour_packs.len() as u8);
+  write_u8(&mut buffer, ResourcePacksInfoPacket::packet_id());
+  write_bool(&mut buffer, info.must_accept);
+  write_bool(&mut buffer, info.has_scripts);
+  write_u8(&mut buffer, info.behaviour_packs.len() as u8);
   for pack in info.behaviour_packs {
-    buffer.push(pack.uuid.len() as u8);
-    buffer.extend(pack.uuid.as_bytes());
-    buffer.push(pack.version.len() as u8);
-    buffer.extend(pack.version.as_bytes());
-    buffer.extend(pack.size.get_u64().1.to_be_bytes().iter());
-    buffer.push(pack.content_key.len() as u8);
-    buffer.extend(pack.content_key.as_bytes());
-    buffer.push(pack.sub_pack_name.len() as u8);
-    buffer.extend(pack.sub_pack_name.as_bytes());
-    buffer.push(pack.content_identity.len() as u8);
-    buffer.extend(pack.content_identity.as_bytes());
-    buffer.push(if pack.has_scripts { 1 } else { 0 });
+    write_string(&mut buffer, pack.uuid);
+    write_string(&mut buffer, pack.version);
+    write_bigint(&mut buffer, pack.size);
+    write_string(&mut buffer, pack.content_key);
+    write_string(&mut buffer, pack.sub_pack_name);
+    write_string(&mut buffer, pack.content_identity);
+    write_bool(&mut buffer, pack.has_scripts);
   }
-  buffer.push(info.resource_packs.len() as u8);
+  write_u8(&mut buffer, info.resource_packs.len() as u8);
   for pack in info.resource_packs {
-    buffer.push(pack.uuid.len() as u8);
-    buffer.extend(pack.uuid.as_bytes());
-    buffer.push(pack.version.len() as u8);
-    buffer.extend(pack.version.as_bytes());
-    buffer.extend(pack.size.get_u64().1.to_be_bytes().iter());
-    buffer.push(pack.content_key.len() as u8);
-    buffer.extend(pack.content_key.as_bytes());
-    buffer.push(pack.sub_pack_name.len() as u8);
-    buffer.extend(pack.sub_pack_name.as_bytes());
-    buffer.push(pack.content_identity.len() as u8);
-    buffer.extend(pack.content_identity.as_bytes());
-    buffer.push(if pack.has_scripts { 1 } else { 0 });
-    buffer.push(if pack.rtx_enabled { 1 } else { 0 });
+    write_string(&mut buffer, pack.uuid);
+    write_string(&mut buffer, pack.version);
+    write_bigint(&mut buffer, pack.size);
+    write_string(&mut buffer, pack.content_key);
+    write_string(&mut buffer, pack.sub_pack_name);
+    write_string(&mut buffer, pack.content_identity);
+    write_bool(&mut buffer, pack.has_scripts);
+    write_bool(&mut buffer, pack.rtx_enabled);
   }
+
   buffer
 }
 
@@ -89,108 +133,56 @@ pub fn serialize_resource_packs_info(info: ResourcePacksInfoPacket) -> Vec<u8> {
 #[napi]
 pub fn deserialize_resource_packs_info(data: Vec<u8>) -> ResourcePacksInfoPacket {
   let mut data = data.into_iter();
-  let _id = data.next().unwrap();
-  let must_accept = data.next().unwrap() == 1;
-  let has_scripts = data.next().unwrap() == 1;
-  let behaviour_packs_len = data.next().unwrap();
+  let _id = read_u8(&mut data);
+  let must_accept = read_bool(&mut data);
+  let has_scripts = read_bool(&mut data);
+  let behaviour_packs_len = read_u8(&mut data);
   let mut behaviour_packs = Vec::new();
   for _ in 0..behaviour_packs_len {
-    let uuid_len = data.next().unwrap();
-    let mut uuid = Vec::new();
-    for _ in 0..uuid_len {
-      uuid.push(data.next().unwrap());
-    }
-    let uuid = String::from_utf8(uuid).unwrap();
-    let version_len = data.next().unwrap();
-    let mut version = Vec::new();
-    for _ in 0..version_len {
-      version.push(data.next().unwrap());
-    }
-    let version = String::from_utf8(version).unwrap();
-    let mut size = [0; 8];
-    for i in 0..8 {
-      size[i] = data.next().unwrap();
-    }
-    let size = BigInt::from(u64::from_be_bytes(size));
-    let content_key_len = data.next().unwrap();
-    let mut content_key = Vec::new();
-    for _ in 0..content_key_len {
-      content_key.push(data.next().unwrap());
-    }
-    let content_key = String::from_utf8(content_key).unwrap();
-    let sub_pack_name_len = data.next().unwrap();
-    let mut sub_pack_name = Vec::new();
-    for _ in 0..sub_pack_name_len {
-      sub_pack_name.push(data.next().unwrap());
-    }
-    let sub_pack_name = String::from_utf8(sub_pack_name).unwrap();
-    let content_identity_len = data.next().unwrap();
-    let mut content_identity = Vec::new();
-    for _ in 0..content_identity_len {
-      content_identity.push(data.next().unwrap());
-    }
-    let content_identity = String::from_utf8(content_identity).unwrap();
-    let has_scripts = data.next().unwrap() == 1;
-    behaviour_packs.push(BehaviourPackInfo {
-      uuid,
-      version,
-      size,
-      content_key,
-      sub_pack_name,
-      content_identity,
-      has_scripts,
-    });
+    let uuid = read_string(&mut data);
+    let version = read_string(&mut data);
+    let size = read_bigint(&mut data);
+    let content_key = read_string(&mut data);
+    let sub_pack_name = read_string(&mut data);
+    let content_identity = read_string(&mut data);
+    let has_scripts = read_bool(&mut data);
+
+    behaviour_packs.push(
+        BehaviourPackInfo {
+        uuid,
+        version,
+        size,
+        content_key,
+        sub_pack_name,
+        content_identity,
+        has_scripts,
+      }
+    );
   }
-  let resource_packs_len = data.next().unwrap();
+  let resource_packs_len = read_u8(&mut data);
   let mut resource_packs = Vec::new();
   for _ in 0..resource_packs_len {
-    let uuid_len = data.next().unwrap();
-    let mut uuid = Vec::new();
-    for _ in 0..uuid_len {
-      uuid.push(data.next().unwrap());
-    }
-    let uuid = String::from_utf8(uuid).unwrap();
-    let version_len = data.next().unwrap();
-    let mut version = Vec::new();
-    for _ in 0..version_len {
-      version.push(data.next().unwrap());
-    }
-    let version = String::from_utf8(version).unwrap();
-    let mut size = [0; 8];
-    for i in 0..8 {
-      size[i] = data.next().unwrap();
-    }
-    let size = BigInt::from(u64::from_be_bytes(size));
-    let content_key_len = data.next().unwrap();
-    let mut content_key = Vec::new();
-    for _ in 0..content_key_len {
-      content_key.push(data.next().unwrap());
-    }
-    let content_key = String::from_utf8(content_key).unwrap();
-    let sub_pack_name_len = data.next().unwrap();
-    let mut sub_pack_name = Vec::new();
-    for _ in 0..sub_pack_name_len {
-      sub_pack_name.push(data.next().unwrap());
-    }
-    let sub_pack_name = String::from_utf8(sub_pack_name).unwrap();
-    let content_identity_len = data.next().unwrap();
-    let mut content_identity = Vec::new();
-    for _ in 0..content_identity_len {
-      content_identity.push(data.next().unwrap());
-    }
-    let content_identity = String::from_utf8(content_identity).unwrap();
-    let has_scripts = data.next().unwrap() == 1;
-    let rtx_enabled = data.next().unwrap() == 1;
-    resource_packs.push(ResourcePackInfo {
-      uuid,
-      version,
-      size,
-      content_key,
-      sub_pack_name,
-      content_identity,
-      has_scripts,
-      rtx_enabled,
-    });
+    let uuid = read_string(&mut data);
+    let version = read_string(&mut data);
+    let size = read_bigint(&mut data);
+    let content_key = read_string(&mut data);
+    let sub_pack_name = read_string(&mut data);
+    let content_identity = read_string(&mut data);
+    let has_scripts = read_bool(&mut data);
+    let rtx_enabled = read_bool(&mut data);
+
+    resource_packs.push(
+        ResourcePackInfo {
+        uuid,
+        version,
+        size,
+        content_key,
+        sub_pack_name,
+        content_identity,
+        has_scripts,
+        rtx_enabled,
+      }
+    );
   }
 
   ResourcePacksInfoPacket {
