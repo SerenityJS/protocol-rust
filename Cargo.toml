@@ -1,6 +1,6 @@
 [package]
 edition = "2021"
-name = "protocol"
+name = "serenityjs_protocol"
 version = "0.0.0"
 
 [lib]

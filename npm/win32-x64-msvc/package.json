@@ -1,5 +1,5 @@
 {
-  "name": "protocol-win32-x64-msvc",
+  "name": "@serenityjs/protocol-win32-x64-msvc",
   "version": "0.0.0",
   "os": [
     "win32"
