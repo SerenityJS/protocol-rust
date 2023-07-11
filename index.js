@@ -252,6 +252,7 @@ if (!nativeBinding) {
   throw new Error(`Failed to load native binding`)
 }
 
-const { sum } = nativeBinding
+const { serializeResourcePacksInfo, deserializeResourcePacksInfo } = nativeBinding
 
-module.exports.sum = sum
+module.exports.serializeResourcePacksInfo = serializeResourcePacksInfo
+module.exports.deserializeResourcePacksInfo = deserializeResourcePacksInfo

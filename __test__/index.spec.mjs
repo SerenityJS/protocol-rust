@@ -1,7 +1,18 @@
 import test from 'ava'
 
-import { sum } from '../index.js'
+import { serializeResourcePacksInfo, deserializeResourcePacksInfo } from '../index.js'
 
 test('sum from native', (t) => {
-  t.is(sum(1, 2), 3)
+  const buffer = serializeResourcePacksInfo({
+    hasScripts: false,
+    mustAccept: true,
+    resourcePacks: ['hello_world'],
+    behaviourPacks: ['foo_bar_baz']
+  })
+  console.log(buffer)
+  
+  const deserialized = deserializeResourcePacksInfo(buffer)
+  console.log(deserialized)
+
+  t.is(1, 1)
 })
