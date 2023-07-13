@@ -2,18 +2,18 @@ use protocol_derive::{UseConstructorCloning, packet};
 use napi::bindgen_prelude::*;
 use crate::binary::{BinaryStream, Endianess};
 
-#[napi(constructor)]
-#[derive(Clone, UseConstructorCloning)]
-pub struct LoginToken {
-  pub identity: String,
-  pub client: String,
-}
-
 #[packet(0x01)]
 #[napi(constructor)]
 pub struct LoginPacket {
   pub protocol_version: i32,
   pub tokens: LoginToken,
+}
+
+#[napi(constructor)]
+#[derive(Clone, UseConstructorCloning)]
+pub struct LoginToken {
+  pub identity: String,
+  pub client: String,
 }
 
 #[napi]

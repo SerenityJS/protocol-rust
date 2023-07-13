@@ -2,6 +2,16 @@ use protocol_derive::{UseConstructorCloning, packet};
 use napi::bindgen_prelude::*;
 use crate::binary::{BinaryStream, Endianess};
 
+#[packet(0x06)]
+#[napi(constructor)]
+pub struct ResourcePacksInfoPacket {
+  pub must_accept: bool,
+  pub has_scripts: bool,
+
+  pub behaviour_packs: Vec<BehaviourPackInfo>,
+  pub resource_packs: Vec<ResourcePackInfo>,
+}
+
 #[napi(constructor)]
 #[derive(Clone, UseConstructorCloning)]
 pub struct BehaviourPackInfo {
@@ -25,16 +35,6 @@ pub struct ResourcePackInfo {
   pub content_identity: String,
   pub has_scripts: bool,
   pub rtx_enabled: bool,
-}
-
-#[packet(0x06)]
-#[napi(constructor)]
-pub struct ResourcePacksInfoPacket {
-  pub must_accept: bool,
-  pub has_scripts: bool,
-
-  pub behaviour_packs: Vec<BehaviourPackInfo>,
-  pub resource_packs: Vec<ResourcePackInfo>,
 }
 
 #[napi]

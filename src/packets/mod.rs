@@ -1,6 +1,7 @@
 #![allow(dead_code, unused_variables)]
 
 mod login;
+mod play_status;
 mod server_to_client_handshake;
 mod client_to_server_handshake;
 mod resource_packs_info;
