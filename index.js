@@ -252,15 +252,13 @@ if (!nativeBinding) {
   throw new Error(`Failed to load native binding`)
 }
 
-const { inModule, getPacketId, serializeResourcePacksInfo, deserializeResourcePacksInfo, serializeLogin, deserializeLogin, serializeServerToClientHandshake, deserializeServerToClientHandshake, serializeClientToServerHandshake, deserializeClientToServerHandshake } = nativeBinding
+const { LoginToken, LoginPacket, ServerToClientHandshakePacket, ClientToServerHandshakePacket, BehaviourPackInfo, ResourcePackInfo, ResourcePacksInfoPacket, getPacketId } = nativeBinding
 
-module.exports.inModule = inModule
+module.exports.LoginToken = LoginToken
+module.exports.LoginPacket = LoginPacket
+module.exports.ServerToClientHandshakePacket = ServerToClientHandshakePacket
+module.exports.ClientToServerHandshakePacket = ClientToServerHandshakePacket
+module.exports.BehaviourPackInfo = BehaviourPackInfo
+module.exports.ResourcePackInfo = ResourcePackInfo
+module.exports.ResourcePacksInfoPacket = ResourcePacksInfoPacket
 module.exports.getPacketId = getPacketId
-module.exports.serializeResourcePacksInfo = serializeResourcePacksInfo
-module.exports.deserializeResourcePacksInfo = deserializeResourcePacksInfo
-module.exports.serializeLogin = serializeLogin
-module.exports.deserializeLogin = deserializeLogin
-module.exports.serializeServerToClientHandshake = serializeServerToClientHandshake
-module.exports.deserializeServerToClientHandshake = deserializeServerToClientHandshake
-module.exports.serializeClientToServerHandshake = serializeClientToServerHandshake
-module.exports.deserializeClientToServerHandshake = deserializeClientToServerHandshake

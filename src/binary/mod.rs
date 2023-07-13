@@ -391,7 +391,7 @@ impl BinaryStream {
 
 // Read/Write strings
 impl BinaryStream {
-  pub fn write_string(&mut self, value: &str) {
+  pub fn write_string(&mut self, value: String) {
     let bytes = value.as_bytes();
     self.write_u8(bytes.len() as u8);
     self.data.extend(bytes.iter());
@@ -425,12 +425,12 @@ impl BinaryStream {
         bytes[i] = self.read_u8();
     }
     String::from_utf8(bytes).unwrap()
-}
+  }
 }
 
 // Will write string without length
 impl BinaryStream {
-  pub fn write_string_without_length(&mut self, value: &str) {
+  pub fn write_string_without_length(&mut self, value: String) {
     let bytes = value.as_bytes();
     self.data.extend(bytes.iter());
   }

@@ -1,28 +1,19 @@
-const { serializeResourcePacksInfo, deserializeResourcePacksInfo } = require('../index.js')
+const { LoginPacket, LoginToken } = require('../index')
 
-let d = Date.now()
-const buffer = serializeResourcePacksInfo({
-  hasScripts: false,
-  mustAccept: true,
-  resourcePacks: [
-    {
-      'uuid': '59addd86-1fee-11ee-be56-0242ac120002',
-      'size': 10000n,
-      'version': '1.0.0',
-      'subPackName': 'foo bar baz',
-      'contentKey': 'foo_bar_baz',
-      'contentIdentity': 'foo_bar_baz',
-      'hasScripts': false,
-      'rtxEnabled': false,
-    }  
-  ],
-  behaviourPacks: []
-})
-const buf = Buffer.from(buffer)
-console.log('Took ' + (Date.now() - d) + 'ms to serialize')
-console.log(buf)
+const tokens = new LoginToken('testtttttttttt', 'testttttttttttttttttttttttttttt')
+const pak = new LoginPacket(589, tokens)
 
-d = Date.now()
-const des = deserializeResourcePacksInfo(Array.from(buf))
-console.log('Took ' + (Date.now() - d) + 'ms to deserialize')
-console.log(des)
+const ser = pak.serialize()
+console.log(ser)
+
+const destruct = (obj) => {
+  const properties = new Set()
+  let currentObj = obj
+  do {
+    Object.getOwnPropertyNames(currentObj).map((item) => properties.add(item))
+  } while ((currentObj = Object.getPrototypeOf(currentObj)))
+  return [...properties.keys()]
+}
+
+const des = LoginPacket.deserialize(ser)
+console.log(destruct(des))

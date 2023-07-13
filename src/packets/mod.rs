@@ -1,26 +1,11 @@
-use napi::bindgen_prelude::*;
+#![allow(dead_code, unused_variables)]
 
-#[napi(object)]
-pub struct BehaviourPackInfo {
-  pub uuid: String,
-  pub version: String,
-  pub size: BigInt,
-  pub content_key: String,
-  pub sub_pack_name: String,
-  pub content_identity: String,
-  pub has_scripts: bool,
+mod login;
+mod server_to_client_handshake;
+mod client_to_server_handshake;
+mod resource_packs_info;
+
+#[napi]
+pub fn get_packet_id(data: Vec<u8>) -> u8 {
+  data[0]
 }
-
-#[napi(object)]
-pub struct ResourcePackInfo {
-  pub uuid: String,
-  pub version: String,
-  pub size: BigInt,
-  pub content_key: String,
-  pub sub_pack_name: String,
-  pub content_identity: String,
-  pub has_scripts: bool,
-  pub rtx_enabled: bool,
-}
-
-
