@@ -252,7 +252,9 @@ if (!nativeBinding) {
   throw new Error(`Failed to load native binding`)
 }
 
-const { serializeResourcePacksInfo, deserializeResourcePacksInfo } = nativeBinding
+const { serializeResourcePacksInfo, deserializeResourcePacksInfo, serializeLogin, deserializeLogin } = nativeBinding
 
 module.exports.serializeResourcePacksInfo = serializeResourcePacksInfo
 module.exports.deserializeResourcePacksInfo = deserializeResourcePacksInfo
+module.exports.serializeLogin = serializeLogin
+module.exports.deserializeLogin = deserializeLogin

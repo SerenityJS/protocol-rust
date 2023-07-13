@@ -30,3 +30,13 @@ export interface ResourcePacksInfoPacket {
 }
 export function serializeResourcePacksInfo(info: ResourcePacksInfoPacket): Array<number>
 export function deserializeResourcePacksInfo(data: Array<number>): ResourcePacksInfoPacket
+export interface LoginToken {
+  identity: string
+  client: string
+}
+export interface LoginPacket {
+  protocolVersion: number
+  tokens: LoginToken
+}
+export function serializeLogin(login: LoginPacket): Array<number>
+export function deserializeLogin(data: Array<number>): LoginPacket
