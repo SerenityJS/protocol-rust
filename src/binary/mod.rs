@@ -2,8 +2,12 @@
 // for Minecraft Bedrock Edition packets;
 
 // Used for reading and writing binary data
-
+// TODO: Figure out optimal method naming convention
+// TODO: Figure out optimal structuring based on use cases
 #![allow(dead_code, unused_variables)]
+
+use std::{convert::TryInto, fmt::Debug};
+
 pub enum Endianess {
   Big,
   Little,
@@ -290,6 +294,44 @@ impl BinaryStream {
     result
   }
 
+  pub fn read_varuint(&mut self) -> u32 {
+    let mut num_read = 0;
+    let mut result = 0;
+    let mut read: u8;
+    loop {
+      read = self.read_u8();
+      let value = (read & 0b01111111) as u32;
+      result |= value << (7 * num_read);
+      num_read += 1;
+      if num_read > 5 {
+        panic!("VarInt is too big");
+      }
+      if (read & 0b10000000) == 0 {
+        break;
+      }
+    }
+    result
+  }
+
+  pub fn read_varulong(&mut self) -> u64 {
+    let mut num_read = 0;
+    let mut result = 0;
+    let mut read: u8;
+    loop {
+      read = self.read_u8();
+      let value = (read & 0b01111111) as u64;
+      result |= value << (7 * num_read);
+      num_read += 1;
+      if num_read > 10 {
+        panic!("VarLong is too big");
+      }
+      if (read & 0b10000000) == 0 {
+        break;
+      }
+    }
+    result
+  }
+
   pub fn write_varint(&mut self, mut value: i32) {
     loop {
       let mut temp = (value & 0b01111111) as u8;
@@ -305,6 +347,34 @@ impl BinaryStream {
   }
 
   pub fn write_varlong(&mut self, mut value: i64) {
+    loop {
+      let mut temp = (value & 0b01111111) as u8;
+      value = value >> 7;
+      if value != 0 {
+        temp |= 0b10000000;
+      }
+      self.write_u8(temp);
+      if value == 0 {
+        break;
+      }
+    }
+  }
+
+  pub fn write_varuint(&mut self, mut value: u32) {
+    loop {
+      let mut temp = (value & 0b01111111) as u8;
+      value = value >> 7;
+      if value != 0 {
+        temp |= 0b10000000;
+      }
+      self.write_u8(temp);
+      if value == 0 {
+        break;
+      }
+    }
+  }
+
+  pub fn write_varulong(&mut self, mut value: u64) {
     loop {
       let mut temp = (value & 0b01111111) as u8;
       value = value >> 7;
@@ -334,6 +404,35 @@ impl BinaryStream {
       bytes[i as usize] = self.read_u8();
     }
     String::from_utf8(bytes).unwrap()
+  }
+}
+
+// Read string accepts size parameter
+impl BinaryStream {
+  pub fn read_string_with_length<T>(&mut self, length: T) -> String
+  where
+    T: TryInto<usize>,
+    <T as TryInto<usize>>::Error: Debug,
+  {
+    let length: usize = match length.try_into() {
+        Ok(value) => value,
+        Err(err) => {
+            panic!("Failed to convert length {:?}", err);
+        }
+    };
+    let mut bytes = vec![0; length];
+    for i in 0..length {
+        bytes[i] = self.read_u8();
+    }
+    String::from_utf8(bytes).unwrap()
+}
+}
+
+// Will write string without length
+impl BinaryStream {
+  pub fn write_string_without_length(&mut self, value: &str) {
+    let bytes = value.as_bytes();
+    self.data.extend(bytes.iter());
   }
 }
 

@@ -252,9 +252,15 @@ if (!nativeBinding) {
   throw new Error(`Failed to load native binding`)
 }
 
-const { serializeResourcePacksInfo, deserializeResourcePacksInfo, serializeLogin, deserializeLogin } = nativeBinding
+const { inModule, getPacketId, serializeResourcePacksInfo, deserializeResourcePacksInfo, serializeLogin, deserializeLogin, serializeServerToClientHandshake, deserializeServerToClientHandshake, serializeClientToServerHandshake, deserializeClientToServerHandshake } = nativeBinding
 
+module.exports.inModule = inModule
+module.exports.getPacketId = getPacketId
 module.exports.serializeResourcePacksInfo = serializeResourcePacksInfo
 module.exports.deserializeResourcePacksInfo = deserializeResourcePacksInfo
 module.exports.serializeLogin = serializeLogin
 module.exports.deserializeLogin = deserializeLogin
+module.exports.serializeServerToClientHandshake = serializeServerToClientHandshake
+module.exports.deserializeServerToClientHandshake = deserializeServerToClientHandshake
+module.exports.serializeClientToServerHandshake = serializeClientToServerHandshake
+module.exports.deserializeClientToServerHandshake = deserializeClientToServerHandshake
