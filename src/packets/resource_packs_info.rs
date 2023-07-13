@@ -7,6 +7,7 @@ use crate::binary::{BinaryStream, Endianess};
 pub struct ResourcePacksInfoPacket {
   pub must_accept: bool,
   pub has_scripts: bool,
+  pub force_server_packs: bool,
 
   pub behaviour_packs: Vec<BehaviourPackInfo>,
   pub resource_packs: Vec<ResourcePackInfo>,
@@ -46,6 +47,7 @@ impl ResourcePacksInfoPacket {
     bin.write_u8(ResourcePacksInfoPacket::pid());
     bin.write_bool(self.must_accept);
     bin.write_bool(self.has_scripts);
+    bin.write_bool(self.force_server_packs);
     bin.write_i16(self.behaviour_packs.len() as i16, Endianess::Little);
 
     for pack in &self.behaviour_packs {
@@ -80,6 +82,7 @@ impl ResourcePacksInfoPacket {
 
     let must_accept = bin.read_bool();
     let has_scripts = bin.read_bool();
+    let force_server_packs = bin.read_bool();
 
     let behaviour_packs_len = bin.read_i16(Endianess::Little);
     let mut behaviour_packs = Vec::new();
@@ -130,6 +133,7 @@ impl ResourcePacksInfoPacket {
     Self {
       must_accept,
       has_scripts,
+      force_server_packs,
       behaviour_packs,
       resource_packs,
     }
