@@ -323,12 +323,12 @@ impl BinaryStream {
 impl BinaryStream {
   pub fn write_string(&mut self, value: &str) {
     let bytes = value.as_bytes();
-    self.write_varint(bytes.len() as i32);
+    self.write_u8(bytes.len() as u8);
     self.data.extend(bytes.iter());
   }
 
   pub fn read_string(&mut self) -> String {
-    let length = self.read_varint();
+    let length = self.read_u8();
     let mut bytes = vec![0; length as usize];
     for i in 0..length {
       bytes[i as usize] = self.read_u8();

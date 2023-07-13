@@ -191,3 +191,35 @@ pub fn deserialize_login(data: Vec<u8>) -> LoginPacket {
     },
   }
 }
+
+#[napi(object)]
+pub struct ServerToClientHandshakePacket {
+  pub token: String,
+}
+
+#[napi]
+impl ServerToClientHandshakePacket {
+  pub fn packet_id() -> u8 {
+    0x03
+  }
+}
+
+#[napi]
+pub fn serialize_server_to_client_handshake(handshake: ServerToClientHandshakePacket) -> Vec<u8> {
+  let mut bin = BinaryStream::new();
+
+  bin.write_string(&handshake.token);
+
+  bin.data
+}
+
+#[napi]
+pub fn deserialize_server_to_client_handshake(data: Vec<u8>) -> ServerToClientHandshakePacket {
+  let mut bin = BinaryStream::from(data);
+
+  let token = bin.read_string();
+
+  ServerToClientHandshakePacket {
+    token,
+  }
+}
