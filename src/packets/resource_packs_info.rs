@@ -46,7 +46,7 @@ impl ResourcePacksInfoPacket {
     bin.write_u8(ResourcePacksInfoPacket::pid());
     bin.write_bool(self.must_accept);
     bin.write_bool(self.has_scripts);
-    bin.write_u8(self.behaviour_packs.len() as u8);
+    bin.write_i16(self.behaviour_packs.len() as i16, Endianess::Little);
 
     for pack in &self.behaviour_packs {
       bin.write_string(pack.uuid.clone());
@@ -58,7 +58,7 @@ impl ResourcePacksInfoPacket {
       bin.write_bool(pack.has_scripts);
     }
 
-    bin.write_u8(self.resource_packs.len() as u8);
+    bin.write_i16(self.resource_packs.len() as i16, Endianess::Little);
     for pack in &self.resource_packs {
       bin.write_string(pack.uuid.clone());
       bin.write_string(pack.version.clone());
@@ -81,7 +81,7 @@ impl ResourcePacksInfoPacket {
     let must_accept = bin.read_bool();
     let has_scripts = bin.read_bool();
 
-    let behaviour_packs_len = bin.read_u8();
+    let behaviour_packs_len = bin.read_i16(Endianess::Little);
     let mut behaviour_packs = Vec::new();
     for _ in 0..behaviour_packs_len {
       let uuid = bin.read_string();
@@ -103,7 +103,7 @@ impl ResourcePacksInfoPacket {
       });
     }
 
-    let resource_packs_len = bin.read_u8();
+    let resource_packs_len = bin.read_i16(Endianess::Little);
     let mut resource_packs = Vec::new();
     for _ in 0..resource_packs_len {
       let uuid = bin.read_string();
