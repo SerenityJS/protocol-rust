@@ -38,6 +38,7 @@ pub struct ResourcePackInfo {
   pub rtx_enabled: bool,
 }
 
+// TODO: let resourceinfopack and behaviourinfopack have their own serialize and deserialize
 #[napi]
 impl ResourcePacksInfoPacket {
   #[napi]
