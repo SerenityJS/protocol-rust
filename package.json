@@ -11,10 +11,19 @@
   "devDependencies": {
     "@napi-rs/cli": "^2.16.1",
     "@types/node": "^20.4.1",
-    "ava": "^5.1.1"
+    "ava": "^5.1.1",
+    "tap-nyan": "^1.1.0",
+    "tsx": "^3.12.7"
   },
   "ava": {
-    "timeout": "3m"
+    "timeout": "3m",
+    "extensions": {
+      "ts": "module"
+    },
+    "nodeArguments": [
+      "--loader=tsx",
+      "--no-warnings=ExperimentalWarning"
+    ]
   },
   "packageManager": "yarn@3.6.1",
   "engines": {
@@ -27,13 +36,13 @@
     "build": "napi build --platform --release",
     "build:debug": "napi build --platform",
     "prepublishOnly": "napi prepublish -t npm",
-    "test": "ava",
+    "test": "ava --tap | tap-nyan",
     "universal": "napi universal",
     "version": "napi version"
   },
   "optionalDependencies": {
-    "@serenityjs/protocol-win32-x64-msvc": "0.0.2",
     "@serenityjs/protocol-darwin-x64": "0.0.2",
-    "@serenityjs/protocol-linux-x64-gnu": "0.0.2"
+    "@serenityjs/protocol-linux-x64-gnu": "0.0.2",
+    "@serenityjs/protocol-win32-x64-msvc": "0.0.2"
   }
 }

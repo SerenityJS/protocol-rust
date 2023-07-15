@@ -14,7 +14,7 @@ impl ServerToClientHandshakePacket {
   pub fn serialize(&self) -> Buffer {
     let mut bin = BinaryStream::new();
 
-    bin.write_u8(ServerToClientHandshakePacket::pid());
+    bin.write_u8(ServerToClientHandshakePacket::id());
     bin.write_varuint(self.token.len() as u32);
     bin.write_string_without_length(self.token.clone());
 

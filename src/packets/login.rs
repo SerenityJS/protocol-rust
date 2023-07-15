@@ -22,7 +22,7 @@ impl LoginPacket {
   pub fn serialize(&self) -> Buffer {
     let mut bin = BinaryStream::new();
 
-    bin.write_u8(LoginPacket::pid());
+    bin.write_u8(LoginPacket::id());
     bin.write_i32(self.protocol_version, Endianess::Big);
     bin.write_varint(self.tokens.identity.len() as i32 + self.tokens.client.len() as i32 + 2);
     bin.write_little_string(&self.tokens.identity);

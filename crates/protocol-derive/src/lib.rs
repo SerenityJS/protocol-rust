@@ -69,13 +69,8 @@ pub fn packet(args: TokenStream, item: TokenStream) -> TokenStream {
     #ast
     #[napi]
     impl #struct_name {
-      #[napi(js_name = "id")]
-      pub fn pid() -> u8 {
-        #id
-      }
-
       #[napi]
-      pub fn id(&self) -> u8 {
+      pub fn id() -> u8 {
         #id
       }
     }

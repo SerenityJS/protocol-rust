@@ -28,7 +28,7 @@ impl PlayStatusPacket {
   pub fn serialize(&self) -> Buffer {
     let mut bin = BinaryStream::new();
 
-    bin.write_u8(PlayStatusPacket::pid());
+    bin.write_u8(PlayStatusPacket::id());
     bin.write_i32(self.status as i32, Endianess::Big);
 
     bin.data.into()

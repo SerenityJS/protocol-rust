@@ -45,12 +45,12 @@ impl ResourcePacksInfoPacket {
   pub fn serialize(&self) -> Buffer {
     let mut bin = BinaryStream::new();
 
-    bin.write_u8(ResourcePacksInfoPacket::pid());
+    bin.write_u8(ResourcePacksInfoPacket::id());
     bin.write_bool(self.must_accept);
     bin.write_bool(self.has_scripts);
     bin.write_bool(self.force_server_packs);
-    bin.write_i16(self.behaviour_packs.len() as i16, Endianess::Little);
 
+    bin.write_i16(self.behaviour_packs.len() as i16, Endianess::Little);
     for pack in &self.behaviour_packs {
       bin.write_string(pack.uuid.clone());
       bin.write_string(pack.version.clone());
@@ -81,6 +81,7 @@ impl ResourcePacksInfoPacket {
   pub fn deserialize(buf: Buffer) -> Self {
     let mut bin = BinaryStream::from(buf.into());
 
+    let _id = bin.read_u8();
     let must_accept = bin.read_bool();
     let has_scripts = bin.read_bool();
     let force_server_packs = bin.read_bool();

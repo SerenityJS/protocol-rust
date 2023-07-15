@@ -12,7 +12,7 @@ impl ClientToServerHandshakePacket {
   pub fn serialize(&self) -> Buffer {
     let mut bin = BinaryStream::new();
 
-    bin.write_u8(ClientToServerHandshakePacket::pid());
+    bin.write_u8(ClientToServerHandshakePacket::id());
 
     bin.data.into()
   }

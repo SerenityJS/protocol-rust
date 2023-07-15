@@ -15,7 +15,7 @@ impl DisconnectPacket {
   pub fn serialize(&self) -> Buffer {
     let mut bin = BinaryStream::new();
 
-    bin.write_u8(DisconnectPacket::pid());
+    bin.write_u8(DisconnectPacket::id());
     bin.write_bool(self.hide_disconnect_screen);
     bin.write_varuint(self.message.len() as u32);
     bin.write_string_without_length(self.message.clone());

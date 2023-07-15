@@ -15,13 +15,12 @@ export const enum PlayStatus {
   FailedEditorVanillaMismatch = 8,
   FailedVanillaEditorMismatch = 9
 }
-export function getPacketId(data: Array<number>): number
+export function getPacketId(data: Buffer): number
 export class LoginPacket {
   protocolVersion: number
   tokens: LoginToken
   constructor(protocolVersion: number, tokens: LoginToken)
   static id(): number
-  id(): number
   serialize(): Buffer
   static deserialize(data: Buffer): LoginPacket
 }
@@ -34,7 +33,6 @@ export class PlayStatusPacket {
   status: PlayStatus
   constructor(status: PlayStatus)
   static id(): number
-  id(): number
   serialize(): Buffer
   static deserialize(data: Buffer): PlayStatusPacket
 }
@@ -42,7 +40,6 @@ export class ServerToClientHandshakePacket {
   token: string
   constructor(token: string)
   static id(): number
-  id(): number
   serialize(): Buffer
   static deserialize(data: Buffer): ServerToClientHandshakePacket
 }
@@ -50,7 +47,6 @@ export class ClientToServerHandshakePacket {
   
   constructor()
   static id(): number
-  id(): number
   serialize(): Buffer
   static deserialize(data: Buffer): ClientToServerHandshakePacket
 }
@@ -59,18 +55,17 @@ export class DisconnectPacket {
   message: string
   constructor(hideDisconnectScreen: boolean, message: string)
   static id(): number
-  id(): number
   serialize(): Buffer
   static deserialize(data: Buffer): DisconnectPacket
 }
 export class ResourcePacksInfoPacket {
   mustAccept: boolean
   hasScripts: boolean
+  forceServerPacks: boolean
   behaviourPacks: Array<BehaviourPackInfo>
   resourcePacks: Array<ResourcePackInfo>
-  constructor(mustAccept: boolean, hasScripts: boolean, behaviourPacks: Array<BehaviourPackInfo>, resourcePacks: Array<ResourcePackInfo>)
+  constructor(mustAccept: boolean, hasScripts: boolean, forceServerPacks: boolean, behaviourPacks: Array<BehaviourPackInfo>, resourcePacks: Array<ResourcePackInfo>)
   static id(): number
-  id(): number
   serialize(): Buffer
   static deserialize(buf: Buffer): ResourcePacksInfoPacket
 }
