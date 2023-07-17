@@ -13,8 +13,27 @@ mod request_network_settings;
 mod network_settings;
 
 #[napi]
-pub fn get_packet_id(data: Buffer) -> u8 {
-  data[0]
+pub fn get_packet_id(data: Buffer) -> i32 {
+  // read varint directly from front of buffer for speed without binary stream
+  let mut id = 0;
+  let mut shift = 0;
+  let mut i = 0;
+
+  for byte in data.to_vec() {
+    id |= ((byte & 0x7f) as i32) << shift;
+    shift += 7;
+    i += 1;
+
+    if shift > 35 {
+      panic!("VarInt is too big");
+    }
+
+    if (byte & 0x80) == 0 {
+      break;
+    }
+  }
+
+  id
 }
 
 // These are temporary methods below
