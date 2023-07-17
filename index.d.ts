@@ -96,9 +96,8 @@ export class ResourcePackInfo {
   constructor(uuid: string, version: string, size: bigint, contentKey: string, subPackName: string, contentIdentity: string, hasScripts: boolean, rtxEnabled: boolean)
 }
 export class RequestNetworkSettingsPacket {
-  unknown: boolean
   protocolVersion: number
-  constructor(unknown: boolean, protocolVersion: number)
+  constructor(protocolVersion: number)
   static id(): number
   serialize(): Buffer
   static deserialize(data: Buffer): RequestNetworkSettingsPacket
