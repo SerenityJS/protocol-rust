@@ -18,7 +18,7 @@ impl RequestNetworkSettingsPacket {
   pub fn serialize(&self) -> Buffer {
     let mut bin = BinaryStream::new();
 
-    bin.write_u8(RequestNetworkSettingsPacket::id());
+    bin.write_varint(RequestNetworkSettingsPacket::id());
     bin.write_bool(self.unknown);
     bin.write_i32(self.protocol_version, Endianess::Big);
 
@@ -29,7 +29,7 @@ impl RequestNetworkSettingsPacket {
   pub fn deserialize(data: Buffer) -> Self {
     let mut bin = BinaryStream::from(data.into());
 
-    let _id = bin.read_u8();
+    let _id = bin.read_varint();
     let unknown = bin.read_bool();
     let protocol_version = bin.read_i32(Endianess::Big);
 

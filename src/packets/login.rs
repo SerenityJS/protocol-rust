@@ -22,7 +22,7 @@ impl LoginPacket {
   pub fn serialize(&self) -> Buffer {
     let mut bin = BinaryStream::new();
 
-    bin.write_u8(LoginPacket::id());
+    bin.write_varint(LoginPacket::id());
     bin.write_i32(self.protocol_version, Endianess::Big);
     bin.write_varint(self.tokens.identity.len() as i32 + self.tokens.client.len() as i32 + 2);
     bin.write_little_string(&self.tokens.identity);
@@ -35,7 +35,7 @@ impl LoginPacket {
   pub fn deserialize(data: Buffer) -> Self {
     let mut bin = BinaryStream::from(data.into());
 
-    let _id = bin.read_u8();
+    let _id = bin.read_varint();
     let protocol_version = bin.read_i32(Endianess::Big);
 
     // There is a varint here which tells us the length of the next

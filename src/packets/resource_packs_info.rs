@@ -45,7 +45,7 @@ impl ResourcePacksInfoPacket {
   pub fn serialize(&self) -> Buffer {
     let mut bin = BinaryStream::new();
 
-    bin.write_u8(ResourcePacksInfoPacket::id());
+    bin.write_varint(ResourcePacksInfoPacket::id());
     bin.write_bool(self.must_accept);
     bin.write_bool(self.has_scripts);
     bin.write_bool(self.force_server_packs);
@@ -81,7 +81,7 @@ impl ResourcePacksInfoPacket {
   pub fn deserialize(buf: Buffer) -> Self {
     let mut bin = BinaryStream::from(buf.into());
 
-    let _id = bin.read_u8();
+    let _id = bin.read_varint();
     let must_accept = bin.read_bool();
     let has_scripts = bin.read_bool();
     let force_server_packs = bin.read_bool();

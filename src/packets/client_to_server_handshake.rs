@@ -12,7 +12,7 @@ impl ClientToServerHandshakePacket {
   pub fn serialize(&self) -> Buffer {
     let mut bin = BinaryStream::new();
 
-    bin.write_u8(ClientToServerHandshakePacket::id());
+    bin.write_varint(ClientToServerHandshakePacket::id());
 
     bin.data.into()
   }
@@ -21,7 +21,7 @@ impl ClientToServerHandshakePacket {
   pub fn deserialize(data: Buffer) -> Self {
     let mut bin = BinaryStream::from(data.into());
 
-    let _id = bin.read_u8();
+    let _id = bin.read_varint();
 
     ClientToServerHandshakePacket {}
   }

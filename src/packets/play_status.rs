@@ -28,7 +28,7 @@ impl PlayStatusPacket {
   pub fn serialize(&self) -> Buffer {
     let mut bin = BinaryStream::new();
 
-    bin.write_u8(PlayStatusPacket::id());
+    bin.write_varint(PlayStatusPacket::id());
     bin.write_i32(self.status as i32, Endianess::Big);
 
     bin.data.into()
@@ -38,7 +38,7 @@ impl PlayStatusPacket {
   pub fn deserialize(data: Buffer) -> Self {
     let mut bin = BinaryStream::from(data.into());
 
-    let _id = bin.read_u8();
+    let _id = bin.read_varint();
     let status = bin.read_i32(Endianess::Big);
 
     PlayStatusPacket {

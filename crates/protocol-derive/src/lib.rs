@@ -60,7 +60,7 @@ pub fn use_constructor_cloning_derive(input: TokenStream) -> TokenStream {
 pub fn packet(args: TokenStream, item: TokenStream) -> TokenStream {
   // format is packet(0x00) parse the hex id out of args
   let id = args.to_string().replace("0x", "");
-  let id = u8::from_str_radix(&id, 16).unwrap();
+  let id = i32::from_str_radix(&id, 16).unwrap();
 
   let ast = parse_macro_input!(item as ItemStruct);
   let struct_name = &ast.ident;
@@ -70,7 +70,7 @@ pub fn packet(args: TokenStream, item: TokenStream) -> TokenStream {
     #[napi]
     impl #struct_name {
       #[napi]
-      pub fn id() -> u8 {
+      pub fn id() -> i32 {
         #id
       }
     }

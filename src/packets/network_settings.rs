@@ -26,7 +26,7 @@ impl NetworkSettingsPacket {
   pub fn serialize(&self) -> Buffer {
     let mut bin = BinaryStream::new();
 
-    bin.write_u8(NetworkSettingsPacket::id());
+    bin.write_varint(NetworkSettingsPacket::id() as i32);
     bin.write_u16(self.compression_threshold, Endianess::Little);
     bin.write_u16(self.compression_algorithm as u16, Endianess::Little);
     bin.write_bool(self.client_throttle);
@@ -41,7 +41,7 @@ impl NetworkSettingsPacket {
   pub fn deserialize(data: Buffer) -> Self {
     let mut bin = BinaryStream::from(data.into());
 
-    let _id = bin.read_u8();
+    let _id = bin.read_varint();
     let compression_threshold = bin.read_u16(Endianess::Little);
     let compression_algorithm = bin.read_u16(Endianess::Little);
     let client_throttle = bin.read_bool();
