@@ -1,7 +1,7 @@
 #![allow(dead_code, unused_variables)]
 
 use napi::bindgen_prelude::Buffer;
-use crate::binary::BinaryStream;
+use crate::binary::{BinaryStream, Endianess};
 
 mod login;
 mod play_status;
@@ -49,4 +49,42 @@ pub fn unframe_packets(data: Buffer) -> Vec<Buffer> {
   }
 
   packets
+}
+
+// Temporary generates motd_string for raknet
+#[napi]
+pub fn make_motd(
+  motd: String,
+  protocol_version: u32,
+  version: String,
+  current_players: u32,
+  max_players: u32,
+  server_id: String,
+  world_name: String,
+  gamemode: String,
+  gamemode_id: u8,
+  portv4: u16,
+  portv6: u16,
+) -> Buffer {
+  let str = format!(
+    "MCPE;{};{};{};{};{};{};{};{};{};{};{};{};",
+    motd,
+    protocol_version,
+    version,
+    current_players,
+    max_players,
+    server_id,
+    world_name,
+    gamemode,
+    gamemode_id,
+    portv4,
+    portv6,
+    0
+  );
+
+  let mut bin = BinaryStream::new();
+  bin.write_u16(str.as_bytes().len() as u16, Endianess::Big);
+  bin.write_bytes(str.as_bytes().to_vec());
+
+  bin.data.into()
 }

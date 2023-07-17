@@ -252,7 +252,7 @@ if (!nativeBinding) {
   throw new Error(`Failed to load native binding`)
 }
 
-const { LoginPacket, LoginToken, PlayStatusPacket, PlayStatus, ServerToClientHandshakePacket, ClientToServerHandshakePacket, DisconnectPacket, ResourcePacksInfoPacket, BehaviourPackInfo, ResourcePackInfo, RequestNetworkSettingsPacket, NetworkSettingsPacket, CompressionAlgorithm, getPacketId, framePackets, unframePackets } = nativeBinding
+const { LoginPacket, LoginToken, PlayStatusPacket, PlayStatus, ServerToClientHandshakePacket, ClientToServerHandshakePacket, DisconnectPacket, ResourcePacksInfoPacket, BehaviourPackInfo, ResourcePackInfo, RequestNetworkSettingsPacket, NetworkSettingsPacket, CompressionAlgorithm, getPacketId, framePackets, unframePackets, makeMotd } = nativeBinding
 
 module.exports.LoginPacket = LoginPacket
 module.exports.LoginToken = LoginToken
@@ -270,3 +270,4 @@ module.exports.CompressionAlgorithm = CompressionAlgorithm
 module.exports.getPacketId = getPacketId
 module.exports.framePackets = framePackets
 module.exports.unframePackets = unframePackets
+module.exports.makeMotd = makeMotd
