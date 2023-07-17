@@ -468,3 +468,10 @@ impl BinaryStream {
     String::from_utf8(bytes).unwrap()
   }
 }
+
+// Write bytes directly
+impl BinaryStream {
+  pub fn write_bytes(&mut self, bytes: Vec<u8>) {
+    self.data.extend(bytes.iter());
+  }
+}

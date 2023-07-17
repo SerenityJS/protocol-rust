@@ -21,6 +21,7 @@ export const enum CompressionAlgorithm {
   None = 2
 }
 export function getPacketId(data: Buffer): number
+export function framePackets(packets: Array<Buffer>): Buffer
 export class LoginPacket {
   protocolVersion: number
   tokens: LoginToken
