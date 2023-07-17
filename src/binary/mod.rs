@@ -474,4 +474,12 @@ impl BinaryStream {
   pub fn write_bytes(&mut self, bytes: Vec<u8>) {
     self.data.extend(bytes.iter());
   }
+
+  pub fn read_bytes(&mut self, length: usize) -> Vec<u8> {
+    let mut bytes = vec![0; length];
+    for i in 0..length {
+      bytes[i] = self.read_u8();
+    }
+    bytes
+  }
 }

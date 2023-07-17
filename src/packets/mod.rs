@@ -17,7 +17,9 @@ pub fn get_packet_id(data: Buffer) -> u8 {
   data[0]
 }
 
-// Takes an array of serialized packet buffers and frames them with their length
+// These are temporary methods below
+
+// Frames an array of buffers into a single buffer
 #[napi]
 pub fn frame_packets(packets: Vec<Buffer>) -> Buffer {
   let mut bin = BinaryStream::new();
@@ -30,4 +32,21 @@ pub fn frame_packets(packets: Vec<Buffer>) -> Buffer {
   }
 
   bin.data.into()
+}
+
+// Unframes a buffer of packets and returns an array of buffers
+#[napi]
+pub fn unframe_packets(data: Buffer) -> Vec<Buffer> {
+  let mut bin = BinaryStream::from(data.into());
+  let mut packets = Vec::new();
+
+  let _id = bin.read_u8();
+
+  while bin.data.len() > 0 {
+    let len = bin.read_varint() as usize;
+    let packet = bin.read_bytes(len);
+    packets.push(packet.into());
+  }
+
+  packets
 }
