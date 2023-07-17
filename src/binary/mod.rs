@@ -469,10 +469,10 @@ impl BinaryStream {
   }
 }
 
-// Write bytes directly
+// Read/Write bytes
 impl BinaryStream {
-  pub fn write_bytes(&mut self, bytes: Vec<u8>) {
-    self.data.extend(bytes.iter());
+  pub fn write_bytes(&mut self, value: Vec<u8>) {
+    self.data.extend(value.iter());
   }
 
   pub fn read_bytes(&mut self, length: usize) -> Vec<u8> {

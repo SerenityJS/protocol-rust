@@ -44,6 +44,7 @@ pub fn unframe_packets(data: Buffer) -> Vec<Buffer> {
 
   while bin.data.len() > 0 {
     let len = bin.read_varint() as usize;
+    println!("len: {}", len);
     let packet = bin.read_bytes(len);
     packets.push(packet.into());
   }
