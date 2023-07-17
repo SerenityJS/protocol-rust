@@ -15,6 +15,11 @@ export const enum PlayStatus {
   FailedEditorVanillaMismatch = 8,
   FailedVanillaEditorMismatch = 9
 }
+export const enum CompressionAlgorithm {
+  Deflate = 0,
+  Snappy = 1,
+  None = 2
+}
 export function getPacketId(data: Buffer): number
 export class LoginPacket {
   protocolVersion: number
@@ -89,4 +94,23 @@ export class ResourcePackInfo {
   hasScripts: boolean
   rtxEnabled: boolean
   constructor(uuid: string, version: string, size: bigint, contentKey: string, subPackName: string, contentIdentity: string, hasScripts: boolean, rtxEnabled: boolean)
+}
+export class RequestNetworkSettingsPacket {
+  unknown: boolean
+  protocolVersion: number
+  constructor(unknown: boolean, protocolVersion: number)
+  static id(): number
+  serialize(): Buffer
+  static deserialize(data: Buffer): RequestNetworkSettingsPacket
+}
+export class NetworkSettingsPacket {
+  compressionThreshold: number
+  compressionAlgorithm: CompressionAlgorithm
+  clientThrottle: boolean
+  clientThrottleThreshold: number
+  clientThrottleScalar: number
+  constructor(compressionThreshold: number, compressionAlgorithm: CompressionAlgorithm, clientThrottle: boolean, clientThrottleThreshold: number, clientThrottleScalar: number)
+  static id(): number
+  serialize(): Buffer
+  static deserialize(data: Buffer): NetworkSettingsPacket
 }

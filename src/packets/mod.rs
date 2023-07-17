@@ -8,6 +8,8 @@ mod server_to_client_handshake;
 mod client_to_server_handshake;
 mod disconnect;
 mod resource_packs_info;
+mod request_network_settings;
+mod network_settings;
 
 #[napi]
 pub fn get_packet_id(data: Buffer) -> u8 {

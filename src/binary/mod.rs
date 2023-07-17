@@ -6,6 +6,9 @@
 // TODO: Figure out optimal structuring based on use cases
 #![allow(dead_code, unused_variables)]
 
+//C -> S: packet_request_network_settings
+//S -> C: packet_network_settings
+
 use std::{convert::TryInto, fmt::Debug};
 
 pub enum Endianess {
@@ -216,6 +219,8 @@ impl BinaryStream {
 // Read/Write floats
 impl BinaryStream {
   pub fn write_f32(&mut self, value: f32, endianess: Endianess) {
+    println!("Writing f32: {}", value);
+    println!("Size {}", value.to_le_bytes().len());
     match endianess {
       Endianess::Big => self.data.extend(value.to_be_bytes().iter()),
       Endianess::Little => self.data.extend(value.to_le_bytes().iter()),
