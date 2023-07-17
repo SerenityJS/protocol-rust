@@ -24,7 +24,7 @@ pub fn get_packet_id(data: Buffer) -> u8 {
 pub fn frame_packets(packets: Vec<Buffer>) -> Buffer {
   let mut bin = BinaryStream::new();
 
-  bin.write_bytes(vec![0xfe]);
+  // bin.write_bytes(vec![0xfe]);
 
   for packet in packets {
     bin.write_varint(packet.len() as i32);
@@ -40,7 +40,7 @@ pub fn unframe_packets(data: Buffer) -> Vec<Buffer> {
   let mut bin = BinaryStream::from(data.into());
   let mut packets = Vec::new();
 
-  let _id = bin.read_u8();
+  // let _id = bin.read_u8();
 
   while bin.data.len() > 0 {
     let len = bin.read_varint() as usize;
