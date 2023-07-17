@@ -483,3 +483,10 @@ impl BinaryStream {
     bytes
   }
 }
+
+// checks if the cursor is at the end of the stream
+impl BinaryStream {
+  pub fn is_empty(&self) -> bool {
+    self.cursor == self.data.len()
+  }
+}
