@@ -9,6 +9,8 @@ mod server_to_client_handshake;
 mod client_to_server_handshake;
 mod disconnect;
 mod resource_packs_info;
+mod resource_pack_stack;
+mod start_game;
 mod request_network_settings;
 mod network_settings;
 

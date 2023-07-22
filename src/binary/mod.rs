@@ -6,10 +6,14 @@
 // TODO: Figure out optimal structuring based on use cases
 #![allow(dead_code, unused_variables)]
 
+pub mod rework;
+
 //C -> S: packet_request_network_settings
 //S -> C: packet_network_settings
 
 use std::{convert::TryInto, fmt::Debug};
+
+use protocol_derive::UseConstructorCloning;
 
 pub enum Endianess {
   Big,
@@ -488,5 +492,75 @@ impl BinaryStream {
 impl BinaryStream {
   pub fn is_empty(&self) -> bool {
     self.cursor == self.data.len()
+  }
+}
+
+// read/write zigzag32
+impl BinaryStream {
+  pub fn write_zigzag32(&mut self, value: i32) {
+    self.write_varint((value << 1) ^ (value >> 31));
+  }
+
+  pub fn read_zigzag32(&mut self) -> i32 {
+    let value = self.read_varint();
+    (value >> 1) ^ -(value & 1)
+  }
+}
+
+// read/write zigzag64
+impl BinaryStream {
+  pub fn write_zigzag64(&mut self, value: i64) {
+    self.write_varlong((value << 1) ^ (value >> 63));
+  }
+
+  pub fn read_zigzag64(&mut self) -> i64 {
+    let value = self.read_varlong();
+    (value >> 1) ^ -(value & 1)
+  }
+}
+
+#[napi(constructor)]
+#[derive(Clone, UseConstructorCloning)]
+pub struct Vec3f {
+  pub x: f64,
+  pub y: f64,
+  pub z: f64,
+}
+
+// read/writ vec3f
+impl BinaryStream {
+  pub fn write_vec3f(&mut self, value: Vec3f) {
+    self.write_f32(value.x as f32, Endianess::Little);
+    self.write_f32(value.y as f32, Endianess::Little);
+    self.write_f32(value.z as f32, Endianess::Little);
+  }
+
+  pub fn read_vec3f(&mut self) -> Vec3f {
+    Vec3f {
+      x: self.read_f32(Endianess::Little) as f64,
+      y: self.read_f32(Endianess::Little) as f64,
+      z: self.read_f32(Endianess::Little) as f64,
+    }
+  }
+}
+
+#[napi]
+#[derive(Clone, UseConstructorCloning)]
+pub struct Vec2f {
+  pub x: f64,
+  pub y: f64,
+}
+// read/write vec2f
+impl BinaryStream {
+  pub fn write_vec2f(&mut self, value: Vec2f) {
+    self.write_f32(value.x as f32, Endianess::Little);
+    self.write_f32(value.y as f32, Endianess::Little);
+  }
+
+  pub fn read_vec2f(&mut self) -> Vec2f {
+    Vec2f {
+      x: self.read_f32(Endianess::Little) as f64,
+      y: self.read_f32(Endianess::Little) as f64,
+    }
   }
 }

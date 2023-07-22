@@ -6,6 +6,14 @@ extern crate napi_derive;
 mod binary;
 mod packets;
 
+// type ZigZag32 = i32;
+
+// #[napi]
+// pub struct Test {
+//   pub a: ZigZag32,
+// }
+
+
 // lets not do this. time to earn our good noodle stars and use Result in BinaryStream
 // then we can use ? and ?? and all the other goodies. If we make the errors napi to begin
 // with then we can just let them propagate.

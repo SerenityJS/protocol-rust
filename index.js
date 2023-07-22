@@ -252,8 +252,10 @@ if (!nativeBinding) {
   throw new Error(`Failed to load native binding`)
 }
 
-const { LoginPacket, LoginToken, PlayStatusPacket, PlayStatus, ServerToClientHandshakePacket, ClientToServerHandshakePacket, DisconnectPacket, ResourcePacksInfoPacket, BehaviourPackInfo, ResourcePackInfo, RequestNetworkSettingsPacket, NetworkSettingsPacket, CompressionAlgorithm, getPacketId, framePackets, unframePackets, makeMotd } = nativeBinding
+const { Vec3F, Vec2F, LoginPacket, LoginToken, PlayStatusPacket, PlayStatus, ServerToClientHandshakePacket, ClientToServerHandshakePacket, DisconnectPacket, ResourcePacksInfoPacket, BehaviourPackInfo, ResourcePackInfo, ResourcePackStackPacket, BehaviourPackIdVersion, ResourcePackIdVersion, Experiment, StartGamePacket, GameMode, Dimension, BlockCoordinates, GameRule, PermissionLevel, EducationSharedResourceUri, ChatRestrictionLevel, MovementAuthority, BlockProperty, ItemState, RequestNetworkSettingsPacket, NetworkSettingsPacket, CompressionAlgorithm, getPacketId, framePackets, unframePackets, makeMotd } = nativeBinding
 
+module.exports.Vec3F = Vec3F
+module.exports.Vec2F = Vec2F
 module.exports.LoginPacket = LoginPacket
 module.exports.LoginToken = LoginToken
 module.exports.PlayStatusPacket = PlayStatusPacket
@@ -264,6 +266,21 @@ module.exports.DisconnectPacket = DisconnectPacket
 module.exports.ResourcePacksInfoPacket = ResourcePacksInfoPacket
 module.exports.BehaviourPackInfo = BehaviourPackInfo
 module.exports.ResourcePackInfo = ResourcePackInfo
+module.exports.ResourcePackStackPacket = ResourcePackStackPacket
+module.exports.BehaviourPackIdVersion = BehaviourPackIdVersion
+module.exports.ResourcePackIdVersion = ResourcePackIdVersion
+module.exports.Experiment = Experiment
+module.exports.StartGamePacket = StartGamePacket
+module.exports.GameMode = GameMode
+module.exports.Dimension = Dimension
+module.exports.BlockCoordinates = BlockCoordinates
+module.exports.GameRule = GameRule
+module.exports.PermissionLevel = PermissionLevel
+module.exports.EducationSharedResourceUri = EducationSharedResourceUri
+module.exports.ChatRestrictionLevel = ChatRestrictionLevel
+module.exports.MovementAuthority = MovementAuthority
+module.exports.BlockProperty = BlockProperty
+module.exports.ItemState = ItemState
 module.exports.RequestNetworkSettingsPacket = RequestNetworkSettingsPacket
 module.exports.NetworkSettingsPacket = NetworkSettingsPacket
 module.exports.CompressionAlgorithm = CompressionAlgorithm

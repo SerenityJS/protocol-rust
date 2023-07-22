@@ -39,6 +39,7 @@ pub struct ResourcePackInfo {
 }
 
 // TODO: let resourceinfopack and behaviourinfopack have their own serialize and deserialize
+// TODO: resource packs & behaviour packs info is invalid uuids are handled differently and other fields
 #[napi]
 impl ResourcePacksInfoPacket {
   #[napi]
