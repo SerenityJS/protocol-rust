@@ -6,6 +6,39 @@ extern crate napi_derive;
 mod binary;
 mod packets;
 
+// #[packet(0x01)]
+// #[napi(object)]
+// pub struct Test {
+//   pub test: String,
+// }
+
+// #[napi]
+// #[derive(Debug)]
+// pub enum PacketType {
+//   Test = 0x01,
+// }
+
+
+// #[napi]
+// pub fn serialize(id: PacketType, data: Object) -> Result<Buffer> {
+//   match id {
+//     PacketType::Test => {
+//       let test: String = data.get_named_property("test")?;
+
+//       println!("test: {}", test);
+
+//       Ok(vec![id as u8].into())
+//     },
+//   }
+//   // let test: String = data.get_named_property("test")?;
+
+//   // println!("test: {}", test);
+
+//   // Ok(vec![id as u8].into())
+// }
+
+
+
 // type ZigZag32 = i32;
 
 // #[napi]

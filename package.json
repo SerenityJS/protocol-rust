@@ -33,8 +33,8 @@
   },
   "scripts": {
     "artifacts": "napi artifacts",
-    "build": "napi build --platform --release",
-    "build:debug": "napi build --platform",
+    "build": "napi build --platform --release && node build.js",
+    "build:debug": "napi build --platform && node build.js",
     "prepublishOnly": "napi prepublish -t npm",
     "test": "ava --tap | tap-nyan",
     "universal": "napi universal",

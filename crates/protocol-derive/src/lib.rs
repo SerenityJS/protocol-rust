@@ -1,9 +1,10 @@
 extern crate proc_macro;
 
 use proc_macro::TokenStream;
-// use proc_macro2::TokenStream as TokenStream2;
-use quote::quote;
-use syn::{parse_macro_input, DeriveInput, ItemStruct};
+use proc_macro2::TokenStream as TokenStream2;
+use quote::{quote, format_ident};
+use syn::{parse_macro_input, DeriveInput, ItemStruct, DataEnum, Ident, Data};
+use convert_case::{Case, Casing};
 
 // This is not optimal, children constructors this is applied to will not be references in the parent
 // they will be cloned. This is a bit of a stinky hack, should probably try to get references working.
@@ -67,14 +68,84 @@ pub fn packet(args: TokenStream, item: TokenStream) -> TokenStream {
 
   let gen = quote! {
     #ast
-    #[napi]
+    // #[napi]
     impl #struct_name {
-      #[napi]
-      pub fn id() -> i32 {
-        #id
-      }
+      // #[napi]
+      // pub fn id() -> i32 {
+      //   #id
+      // }
+      pub const ID: crate::binary::VarInt = #id;
     }
   };
 
   gen.into()
+}
+
+// Generates the serialize and deserialize functions for packet enum
+#[proc_macro_attribute]
+pub fn enum_serializer(_args: TokenStream, input: TokenStream) -> TokenStream {
+  let input = parse_macro_input!(input as DeriveInput);
+
+  // Extract the name of the enum
+  let enum_name = &input.ident;
+
+  // Extract the data of the enum
+  let data = match &input.data {
+    Data::Enum(data) => data,
+    _ => panic!("Only enums are supported."),
+  };
+
+  // Generate match arms for serialize and deserialize
+  let match_serialize = generate_match_arms(enum_name, &data, true);
+  let match_deserialize = generate_match_arms(enum_name, &data, false);
+
+  let expanded = quote! {
+    #input
+
+    #[napi]
+    pub fn serialize(id: #enum_name, data: Object) -> Result<Buffer> {
+      match id {
+        #match_serialize
+      }
+    }
+
+    #[napi]
+    pub fn deserialize(env: Env, id: #enum_name, data: Buffer) -> Result<Object> {
+      match id {
+        #match_deserialize
+      }
+    }
+  };
+
+  expanded.into()
+}
+
+fn generate_match_arms(enum_name: &Ident, data: &DataEnum, is_serialize: bool) -> TokenStream2 {
+  let match_arms = data.variants.iter().map(|variant| {
+    let ident = &variant.ident;
+    let variant_name = format_ident!("{}Packet", ident);
+
+    // convert ident to snake case ident
+    let variant_name_snake = format_ident!("{}", ident.to_string().from_case(Case::UpperCamel).to_case(Case::Snake));
+
+    if is_serialize {
+      quote! {
+        #enum_name::#ident => {
+          let packet = #variant_name_snake::#variant_name::from_object(data)?;
+          packet.serialize()
+        }
+      }
+    } else {
+      quote! {
+        #enum_name::#ident => {
+          let packet = #variant_name_snake::#variant_name::deserialize(data)?;
+          Ok(packet.to_object(env)?)
+        }
+      }
+    }
+  });
+
+  quote! {
+    #(#match_arms),*
+  }
 }

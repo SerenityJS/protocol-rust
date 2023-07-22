@@ -1,60 +1,47 @@
 use protocol_derive::packet;
 use napi::bindgen_prelude::*;
-use napi::Result;
-use crate::binary::rework::{BinaryStream2, I32};
+use crate::binary::*;
 
 #[packet(0xc1)]
-#[napi(constructor)]
+#[napi(object)]
 pub struct RequestNetworkSettingsPacket {
   pub protocol_version: I32,
 }
 
-// #[napi]
-// impl RequestNetworkSettingsPacket {
-//   #[napi]
-//   pub fn serialize(&self) -> Buffer {
-//     let mut bin = BinaryStream2::new();
-
-//     bin.write_varint(RequestNetworkSettingsPacket::id());
-//     bin.write_i32(self.protocol_version);
-
-//     bin.data.into()
-//   }
-
-//   #[napi]
-//   pub fn deserialize(data: Buffer) -> Self {
-//     let mut bin = BinaryStream2::from(data.into());
-
-//     let _id = bin.read_varint();
-//     let protocol_version = bin.read_i32();
-
-//     RequestNetworkSettingsPacket {
-//       protocol_version,
-//     }
-//   }
-// }
-
-// Same implementation as above but using napi result and errors
-#[napi]
 impl RequestNetworkSettingsPacket {
-  #[napi]
+  pub fn from_object(data: Object) -> Result<Self> {
+    let protocol_version = data.get_named_property("protocol_version")?;
+
+    Ok(Self {
+      protocol_version,
+    })
+  }
+  pub fn to_object(&self, env: Env) -> Result<Object> {
+    let mut object = env.create_object()?;
+
+    object.set_named_property("protocol_version", self.protocol_version)?;
+
+    Ok(object)
+  }
+}
+
+impl RequestNetworkSettingsPacket {
   pub fn serialize(&self) -> Result<Buffer> {
-    let mut bin = BinaryStream2::new();
+    let mut stream = BinaryStream::new();
 
-    bin.write_varint(RequestNetworkSettingsPacket::id())?;
-    bin.write_i32(self.protocol_version)?;
+    stream.write_varint(RequestNetworkSettingsPacket::ID)?;
+    stream.write_i32(self.protocol_version)?;
 
-    Ok(bin.data.into())
+    Ok(stream.data.into())
   }
 
-  #[napi]
-  pub fn deserialize(data: Buffer) -> Result<RequestNetworkSettingsPacket> {
-    let mut bin = BinaryStream2::from(data.into());
+  pub fn deserialize(data: Buffer) -> Result<Self> {
+    let mut stream = BinaryStream::from(data.into());
 
-    let _id = bin.read_varint()?;
-    let protocol_version = bin.read_i32()?;
+    let _id = stream.read_varint()?;
+    let protocol_version = stream.read_i32()?;
 
-    Ok(RequestNetworkSettingsPacket {
+    Ok(Self {
       protocol_version,
     })
   }
