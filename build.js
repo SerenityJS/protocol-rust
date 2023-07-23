@@ -27,8 +27,6 @@ const remove = (str, index) => {
 // Injected into the top of index.d.ts these are type aliases inside of rust
 // that napi doesn't know how to serialize so it just assumes the type exists.
 const injection = /* ts */ `// Injected types by build.js
-export type U8 = number;
-export type I32 = number;
 export type VarInt = number;
 
 `; 
@@ -36,7 +34,7 @@ inject(injection, 0);
 
 // Type hacker does some advanced hacky parsing to ensure the serialize and deserialize
 // methods are typed. This is not amazing but it works.
-const packetEnumMatcher = /export const enum Packet \{[\n.*].*\n}/;
+const packetEnumMatcher = /export const enum Packet \{\n(.*,\n)*.*\n}/;
 const packetEnumFieldsMatcher = /.* = \d*/g;
 
 const packetEnumMatch = File.match(packetEnumMatcher);
@@ -54,7 +52,7 @@ const packetEnumStrings = packetEnumFields.map((field) => {
 // This seems a bit hacky but because of how the proc macro works
 // in rust we already follow a strict naming convention for packets
 const enumToPacketInterfaceFields = packetEnumStrings.map((name) => {
-  return /* ts */ `[Packet.${name}]: ${name}Packet`;
+  return /* ts */ `  [Packet.${name}]: ${name}Packet;`;
 })
 
 const enumToPacketInterface = /* ts */ `
@@ -62,7 +60,7 @@ const enumToPacketInterface = /* ts */ `
  * Injected during post build. Helps TypeScript link enum to packet type.
  */
 export interface PacketEnumToPacketInjection {
-  ${enumToPacketInterfaceFields.join(';\n')}
+${enumToPacketInterfaceFields.join('\n')}
 }
 `;
 

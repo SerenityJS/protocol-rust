@@ -1,9 +1,7 @@
+#![allow(dead_code, unused_variables)]
 use napi::{Result, Error, Status::GenericFailure};
 
-pub type U8 = u8;
-pub type I32 = i32;
 pub type VarInt = i32;
-
 
 pub struct BinaryStream {
   pub data: Vec<u8>,
@@ -29,13 +27,13 @@ impl BinaryStream {
 
 // Read/Write U8 using Result with NapiError
 impl BinaryStream {
-  pub fn write_u8(&mut self, value: U8) -> Result<()> {
+  pub fn write_u8(&mut self, value: u8) -> Result<()> {
     self.data.push(value);
 
     Ok(())
   }
 
-  pub fn read_u8(&mut self) -> Result<U8> {
+  pub fn read_u8(&mut self) -> Result<u8> {
     // Check if the cursor is out of bounds.
     if self.cursor >= self.data.len() {
       return Err(Error::new(
@@ -51,15 +49,39 @@ impl BinaryStream {
   }
 }
 
+// Read/Write Bool using Result with NapiError
+impl BinaryStream {
+  pub fn write_bool(&mut self, value: bool) -> Result<()> {
+    self.data.push(value as u8);
+
+    Ok(())
+  }
+
+  pub fn read_bool(&mut self) -> Result<bool> {
+    // Check if the cursor is out of bounds.
+    if self.cursor >= self.data.len() {
+      return Err(Error::new(
+          GenericFailure,
+          "Cursor out of bounds",
+      ));
+    }
+
+    let value = self.data[self.cursor] != 0;
+    self.cursor += 1;
+
+    Ok(value)
+  }
+}
+
 // Read/Write I32 using Result with NapiError
 impl BinaryStream {
-  pub fn write_i32(&mut self, value: I32) -> Result<()> {
+  pub fn write_i32(&mut self, value: i32) -> Result<()> {
     self.data.extend_from_slice(&value.to_be_bytes());
 
     Ok(())
   }
 
-  pub fn read_i32(&mut self) -> Result<I32> {
+  pub fn read_i32(&mut self) -> Result<i32> {
     // Check if the cursor is out of bounds.
     if self.cursor + 4 > self.data.len() {
       return Err(Error::new(
@@ -74,7 +96,7 @@ impl BinaryStream {
 
     self.cursor += 4;
 
-    Ok(I32::from_be_bytes(bytes))
+    Ok(i32::from_be_bytes(bytes))
   }
 }
 
@@ -128,5 +150,34 @@ impl BinaryStream {
     }
 
     Ok(result as VarInt)
+  }
+}
+
+// Read/Write String with Result and NapiError
+impl BinaryStream {
+  pub fn write_string(&mut self, value: String) -> Result<()> {
+    self.write_varint(value.len() as VarInt)?;
+
+    self.data.extend_from_slice(value.as_bytes());
+
+    Ok(())
+  }
+
+  pub fn read_string(&mut self) -> Result<String> {
+    let length = self.read_varint()? as usize;
+
+    // Check if the cursor is out of bounds.
+    if self.cursor + length > self.data.len() {
+      return Err(Error::new(
+          GenericFailure,
+          "Cursor out of bounds",
+      ));
+    }
+
+    let value = String::from_utf8_lossy(&self.data[self.cursor..self.cursor + length]).to_string();
+
+    self.cursor += length;
+
+    Ok(value)
   }
 }
