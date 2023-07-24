@@ -25,6 +25,13 @@ impl BinaryStream {
   }
 }
 
+// Append another binary stream to this one
+impl BinaryStream {
+  pub fn append(&mut self, other: &mut BinaryStream) {
+    self.data.append(&mut other.data);
+  }
+}
+
 // Read/Write U8 using Result with NapiError
 impl BinaryStream {
   pub fn write_u8(&mut self, value: u8) -> Result<()> {

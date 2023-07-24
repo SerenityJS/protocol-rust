@@ -3,7 +3,7 @@ extern crate proc_macro;
 use proc_macro::TokenStream;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{quote, format_ident};
-use syn::{parse_macro_input, DeriveInput, ItemStruct, DataEnum, Ident, Data, Fields, Field, Type};
+use syn::{parse_macro_input, DeriveInput, DataEnum, Ident, Data, Fields, Field, Type};
 use convert_case::{Case, Casing};
 
 // This is not optimal, children constructors this is applied to will not be references in the parent
@@ -63,33 +63,11 @@ pub fn packet(args: TokenStream, item: TokenStream) -> TokenStream {
   let id = args.to_string().replace("0x", "");
   let id = i32::from_str_radix(&id, 16).unwrap();
 
-  let ast = parse_macro_input!(item as ItemStruct);
-  let struct_name = &ast.ident;
-
-  let gen = quote! {
-    #ast
-    impl #struct_name {
-      pub const ID: crate::binary::VarInt = #id;
-    }
-  };
-
-  gen.into()
-}
-
-// Updated packet attribute macro which implements the PacketConversion traits
-// This will probably be egregious when it comes to handling arrays of structs and
-// deeply nested structs. Will need to make a more advanced version of this macro.
-#[proc_macro_attribute]
-pub fn packet2(args: TokenStream, item: TokenStream) -> TokenStream {
-  // format is packet(0x00) parse the hex id out of args
-  let id = args.to_string().replace("0x", "");
-  let id = i32::from_str_radix(&id, 16).unwrap();
-
   let ast = parse_macro_input!(item as DeriveInput);
   let struct_name = &ast.ident;
 
   if !struct_name.to_string().ends_with("Packet") {
-    panic!("Packet structs most end with 'Packet' in their name.");
+    panic!("Packet structs must end with 'Packet' in their name.");
   }
 
   // Get the fields and types of the struct
@@ -155,12 +133,24 @@ fn generate_packet_conversion_from_object(fields: &Fields) -> TokenStream2 {
   let getters = fields.iter().map(|field| {
     let field_name = field.ident.as_ref().unwrap();
     let field_type = &field.ty;
-    let field_type_string = quote!(#field_type).to_string();
+    // let field_type_string = quote!(#field_type).to_string();
 
     let field_name_camel = field_name.to_string().from_case(Case::Snake).to_case(Case::Camel);
 
     if is_not_managed_type(field) {
-      panic!("'{}' is not supported in packets yet!", field_type_string);
+      // panic!("'{}' is not supported in packets yet!", field_type_string);
+
+      return quote! {
+        let #field_name: #field_type = match #field_type::from_object(data.get_named_property(#field_name_camel)?) {
+          Ok(value) => value,
+          Err(err) => {
+            return Err(napi::Error::new(
+              err.status,
+              format!("Expected property '{}' to be of type '{}'\n{}", #field_name_camel, stringify!(#field_type), err)
+            ));
+          }
+        };
+      }
     }
 
     quote! {
@@ -197,13 +187,17 @@ fn generate_packet_conversion_to_object(fields: &Fields) -> TokenStream2 {
     let field_type_string = quote!(#field_type).to_string();
 
     if is_not_managed_type(field) {
-      panic!("'{}' is not supported in packets yet!", field_type_string);
+      // panic!("'{}' is not supported in packets yet!", field_type_string);
+
+      return quote! {
+        object.set_named_property(#field_name_camel, self.#field_name.to_object(env)?)?;
+      }
     }
 
     // Handle ownership of strings
     if field_type_string == "String" {
       return quote! {
-        object.set_named_property(#field_name_camel, self.#field_name.to_string())?;
+        object.set_named_property(#field_name_camel, self.#field_name.to_owned())?;
       }
     }
 
@@ -231,7 +225,11 @@ fn generate_packet_deserialization(fields: &Fields) -> TokenStream2 {
     let field_method = format_ident!("read_{}", field_type_string.to_lowercase());
 
     if is_not_managed_type(field) {
-      panic!("'{}' is not supported in packets yet!", field_type_string);
+      // panic!("'{}' is not supported in packets yet!", field_type_string);
+
+      return quote! {
+        let #field_name = #field_type::deserialize(&mut stream)?;
+      }
     }
 
     quote! {
@@ -259,13 +257,18 @@ fn generate_packet_serialization(fields: &Fields) -> TokenStream2 {
     let field_method = format_ident!("write_{}", field_type_string.to_lowercase());
 
     if is_not_managed_type(field) {
-      panic!("'{}' is not supported in packets yet!", field_type_string);
+      // panic!("'{}' is not supported in packets yet!", field_type_string);
+
+      return quote! {
+        let mut #field_method = self.#field_name.serialize()?;
+        stream.append(&mut #field_method);
+      }
     }
 
     // Handle ownership of strings
     if field_type_string == "String" {
       return quote! {
-        stream.#field_method(self.#field_name.to_string())?;
+        stream.#field_method(self.#field_name.to_owned())?;
       }
     }
 
@@ -310,6 +313,11 @@ fn is_managed_type(ident: &str) -> bool {
 
   managed_types.contains(&ident)
 }
+
+// #[proc_macro_attribute]
+// pub fn packet_child(args: TokenStream, item: TokenStream) -> TokenStream {
+
+// }
 
 // Generates the serialize and deserialize functions for packet enum
 #[proc_macro_attribute]

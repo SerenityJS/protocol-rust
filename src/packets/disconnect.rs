@@ -1,6 +1,6 @@
-use protocol_derive::packet2;
+use protocol_derive::packet;
 
-#[packet2(0x05)]
+#[packet(0x05)]
 #[napi(object)]
 pub struct DisconnectPacket {
   pub hide_disconnect_screen: bool,
