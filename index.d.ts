@@ -1,6 +1,8 @@
 // Injected types by build.js
 export type VarInt = number;
-
+export type LU16 = number;
+export type LF32 = number;
+export type U64 = bigint;
 /* tslint:disable */
 /* eslint-disable */
 
@@ -14,16 +16,79 @@ export interface LoginTokens {
   identity: string
   client: string
 }
+export interface PlayStatusPacket {
+  status: PlayStatus
+}
+export const enum PlayStatus {
+  LoginSuccess = 0,
+  FailedClient = 1,
+  FailedSpawn = 2,
+  PlayerSpawn = 3,
+  FailedInvalidTenant = 4,
+  FailedVanillaEdu = 5,
+  FailedEduVanilla = 6,
+  FailedServerFull = 7,
+  FailedEditorVanillaMismatch = 8,
+  FailedVanillaEditorMismatch = 9
+}
+export interface ServerToClientHandshakePacket {
+  token: string
+}
+export interface ClientToServerHandshakePacket {
+  
+}
 export interface DisconnectPacket {
   hideDisconnectScreen: boolean
   message: string
+}
+export interface ResourcePacksInfoPacket {
+  mustAccept: boolean
+  hasScripts: boolean
+  forceServerPacks: boolean
+  behaviourPacks: Array<BehaviourPackInfo>
+  resourcePacks: Array<ResourcePackInfo>
+}
+export interface BehaviourPackInfo {
+  uuid: string
+  version: string
+  size: U64
+  contentKey: string
+  subPackName: string
+  contentIdentity: string
+  hasScripts: boolean
+}
+export interface ResourcePackInfo {
+  uuid: string
+  version: string
+  size: U64
+  contentKey: string
+  subPackName: string
+  contentIdentity: string
+  hasScripts: boolean
+  rtxEnabled: boolean
+}
+export interface NetworkSettingsPacket {
+  compressionThreshold: LU16
+  compressionAlgorithm: CompressionAlgorithm
+  clientThrottle: boolean
+  clientThrottleThreshold: number
+  clientThrottleScalar: LF32
+}
+export const enum CompressionAlgorithm {
+  Deflate = 0,
+  Snappy = 1
 }
 export interface RequestNetworkSettingsPacket {
   protocolVersion: number
 }
 export const enum Packet {
   Login = 1,
+  PlayStatus = 2,
+  ServerToClientHandshake = 3,
+  ClientToServerHandshake = 4,
   Disconnect = 5,
+  ResourcePacksInfo = 6,
+  NetworkSettings = 143,
   RequestNetworkSettings = 193
 }
 
@@ -32,7 +97,12 @@ export const enum Packet {
  */
 export interface PacketEnumToPacketInjection {
   [Packet.Login]: LoginPacket;
+  [Packet.PlayStatus]: PlayStatusPacket;
+  [Packet.ServerToClientHandshake]: ServerToClientHandshakePacket;
+  [Packet.ClientToServerHandshake]: ClientToServerHandshakePacket;
   [Packet.Disconnect]: DisconnectPacket;
+  [Packet.ResourcePacksInfo]: ResourcePacksInfoPacket;
+  [Packet.NetworkSettings]: NetworkSettingsPacket;
   [Packet.RequestNetworkSettings]: RequestNetworkSettingsPacket;
 }
 

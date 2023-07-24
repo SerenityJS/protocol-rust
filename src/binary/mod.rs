@@ -1,7 +1,12 @@
 #![allow(dead_code, unused_variables)]
-use napi::{Result, Error, Status::GenericFailure};
+use napi::{Result, Error, Status::GenericFailure, bindgen_prelude::BigInt};
 
 pub type VarInt = i32;
+pub type LU16 = u16;
+// Napi doesn't support f32 so internally we will convert to f32
+// when serializing and deserializing.
+pub type LF32 = f64;
+pub type U64 = BigInt;
 
 pub struct BinaryStream {
   pub data: Vec<u8>,
@@ -45,7 +50,7 @@ impl BinaryStream {
     if self.cursor >= self.data.len() {
       return Err(Error::new(
           GenericFailure,
-          "Cursor out of bounds",
+          "Cursor out of bounds at read_u8",
       ));
     }
 
@@ -69,7 +74,7 @@ impl BinaryStream {
     if self.cursor >= self.data.len() {
       return Err(Error::new(
           GenericFailure,
-          "Cursor out of bounds",
+          "Cursor out of bounds at read_bool",
       ));
     }
 
@@ -93,7 +98,7 @@ impl BinaryStream {
     if self.cursor + 4 > self.data.len() {
       return Err(Error::new(
           GenericFailure,
-          "Cursor out of bounds",
+          "Cursor out of bounds at read_i32",
       ));
     }
 
@@ -177,7 +182,7 @@ impl BinaryStream {
     if self.cursor + length > self.data.len() {
       return Err(Error::new(
           GenericFailure,
-          "Cursor out of bounds",
+          "Cursor out of bounds at read_string",
       ));
     }
 
@@ -186,5 +191,88 @@ impl BinaryStream {
     self.cursor += length;
 
     Ok(value)
+  }
+}
+
+// Read/Write LF32 with Result and NapiError
+impl BinaryStream {
+  pub fn write_lf32(&mut self, value: LF32) -> Result<()> {
+    self.data.extend_from_slice(&(value as f32).to_le_bytes());
+
+    Ok(())
+  }
+
+  pub fn read_lf32(&mut self) -> Result<LF32> {
+    // Check if the cursor is out of bounds.
+    if self.cursor + 4 > self.data.len() {
+      return Err(Error::new(
+          GenericFailure,
+          "Cursor out of bounds at read_lf32",
+      ));
+    }
+
+    let mut bytes = [0; 4];
+
+    bytes.copy_from_slice(&self.data[self.cursor..self.cursor + 4]);
+
+    self.cursor += 4;
+
+    Ok(f32::from_le_bytes(bytes) as f64)
+  }
+}
+
+// Read/Write LU16 with Result and NapiError
+impl BinaryStream {
+  pub fn write_lu16(&mut self, value: LU16) -> Result<()> {
+    self.data.extend_from_slice(&value.to_le_bytes());
+
+    Ok(())
+  }
+
+  pub fn read_lu16(&mut self) -> Result<LU16> {
+    // Check if the cursor is out of bounds.
+    if self.cursor + 2 > self.data.len() {
+      return Err(Error::new(
+          GenericFailure,
+          "Cursor out of bounds at read_lu16",
+      ));
+    }
+
+    let mut bytes = [0; 2];
+
+    bytes.copy_from_slice(&self.data[self.cursor..self.cursor + 2]);
+
+    self.cursor += 2;
+
+    Ok(u16::from_le_bytes(bytes))
+  }
+}
+
+// read/write U64 with Result and NapiError
+impl BinaryStream {
+  pub fn write_u64(&mut self, value: u64) -> Result<()> {
+    self.data.extend_from_slice(&value.to_be_bytes());
+
+    Ok(())
+  }
+
+  pub fn read_u64(&mut self) -> Result<u64> {
+    // Check if the cursor is out of bounds.
+    if self.cursor + 8 > self.data.len() {
+      return Err(Error::new(
+          GenericFailure,
+          "Cursor out of bounds at read_u64",
+      ));
+    }
+
+    let mut bytes = [0; 8];
+
+    bytes.copy_from_slice(&self.data[self.cursor..self.cursor + 8]);
+
+    self.cursor += 8;
+
+    
+
+    Ok(u64::from_be_bytes(bytes))
   }
 }

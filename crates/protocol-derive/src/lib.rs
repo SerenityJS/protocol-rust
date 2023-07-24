@@ -3,7 +3,7 @@ extern crate proc_macro;
 use proc_macro::TokenStream;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{quote, format_ident};
-use syn::{parse_macro_input, DeriveInput, DataEnum, Ident, Data, Fields, Field, Type};
+use syn::{parse_macro_input, DeriveInput, DataEnum, Ident, Data, Fields, Field, Type, PathArguments, GenericArgument};
 use convert_case::{Case, Casing};
 
 // This is not optimal, children constructors this is applied to will not be references in the parent
@@ -87,6 +87,7 @@ pub fn packet(args: TokenStream, item: TokenStream) -> TokenStream {
     }
 
     let gen = quote! {
+      #[napi(object)]
       #ast
   
       impl #struct_name {
@@ -123,12 +124,15 @@ pub fn packet(args: TokenStream, item: TokenStream) -> TokenStream {
         }
       }
     };
-  
+
+    // panic!("{}", gen);
+
     return gen.into();
   }
 
   // Otherwise it is a nested structure and needs to be handled differently
   let gen = quote! {
+    #[napi(object)]
     #ast
 
     impl crate::packets::prelude::PacketChildConversion for #struct_name {
@@ -174,6 +178,46 @@ fn generate_packet_conversion_from_object(fields: &Fields) -> TokenStream2 {
 
     let field_name_camel = field_name.to_string().from_case(Case::Snake).to_case(Case::Camel);
 
+    // Handles Vecs
+    if is_vec(field) {
+      let vec_type_string = get_vec_generic(field);
+      let vec_type = format_ident!("{}", vec_type_string);
+      let fet = format_ident!("{}_fet", field_name);
+
+      // Non managed types are handled by their own impls
+      if !is_managed_type(&vec_type_string) {
+        return quote! {
+          let #fet: Vec<napi::bindgen_prelude::Object> = match data.get_named_property(#field_name_camel) {
+            Ok(value) => value,
+            Err(err) => {
+              return Err(napi::Error::new(
+                err.status,
+                format!("Expected property '{}' to be of type '{}'\n{}", #field_name_camel, stringify!(#field_type), err)
+              ));
+            }
+          };
+          let mut #field_name: #field_type = Vec::new();
+          for item in #fet {
+            #field_name.push(#vec_type::from_object(item)?);
+          }
+        }
+      }
+      
+      // Managed types are handled by binary stream
+      return quote! {
+        let #field_name: #field_type = match data.get_named_property(#field_name_camel) {
+          Ok(value) => value,
+          Err(err) => {
+            return Err(napi::Error::new(
+              err.status,
+              format!("Expected property '{}' to be of type '{}'\n{}", #field_name_camel, stringify!(#field_type), err)
+            ));
+          }
+        };
+      }
+    }
+
+    // Hacky type conversion handling
     if is_not_managed_type(field) {
       // panic!("'{}' is not supported in packets yet!", field_type_string);
 
@@ -222,13 +266,44 @@ fn generate_packet_conversion_to_object(fields: &Fields) -> TokenStream2 {
 
     let field_type = &field.ty;
     let field_type_string = quote!(#field_type).to_string();
+  
+    // Handles Vecs
+    if is_vec(field) {
+      let vec_type = get_vec_generic(field);
 
+      // Non managed types are handled by their own impls
+      if !is_managed_type(&vec_type) {
+        return quote! {
+          let mut #field_name = env.create_array_with_length(self.#field_name.len())?;
+          for (i, item) in self.#field_name.iter().enumerate() {
+            let obj = item.to_object(env)?;
+            #field_name.set_element(i as u32, obj)?;
+          }
+          object.set_named_property(#field_name_camel, #field_name)?;
+        }
+      }
+
+      // Managed types are handled by binary stream
+      return quote! {
+        object.set_named_property(#field_name_camel, &self.#field_name)?;
+      }
+
+    }
+
+    // Hacky type conversion handling
     if is_not_managed_type(field) {
       // panic!("'{}' is not supported in packets yet!", field_type_string);
 
       return quote! {
         object.set_named_property(#field_name_camel, self.#field_name.to_object(env)?)?;
       }
+    }
+
+    // Handle ownership for bigints
+    if field_type_string == "U64" {
+      return quote! {
+        object.set_named_property(#field_name_camel, self.#field_name.to_owned())?;
+      };
     }
 
     // Handle ownership of strings
@@ -259,8 +334,38 @@ fn generate_packet_deserialization(fields: &Fields) -> TokenStream2 {
 
     let field_type_string = quote!(#field_type).to_string();
 
+    // Handles Vecs
+    if is_vec(field) {
+      let vec_type_string = get_vec_generic(field);
+      let vec_type = format_ident!("{}", vec_type_string);
+      let len = format_ident!("{}_len", field_name);
+      let field_method = format_ident!("read_{}", vec_type_string.to_lowercase());
+
+      // Non managed types are handled by their own impls
+      if !is_managed_type(&vec_type_string) {
+        return quote! {
+          let #len = stream.read_varint()?;
+          let mut #field_name: #field_type = Vec::new();
+          for _ in 0..#len {
+            #field_name.push(#vec_type::deserialize(&mut stream)?);
+          }
+        }
+      }
+
+      // Managed types are handled by binary stream
+      return quote! {
+        let #len = stream.read_varint()?;
+        let mut #field_name = Vec::new();
+        for _ in 0..#len {
+          #field_name.push(stream.#field_method()?);
+        }
+      }
+    }
+
+    // We have to do this after otherwise it will panic on vecs
     let field_method = format_ident!("read_{}", field_type_string.to_lowercase());
 
+    // Hacky type conversion handling
     if is_not_managed_type(field) {
       // panic!("'{}' is not supported in packets yet!", field_type_string);
 
@@ -269,10 +374,17 @@ fn generate_packet_deserialization(fields: &Fields) -> TokenStream2 {
       }
     }
 
+    // Handle hacky bigint stuff
+    if field_type_string == "U64" {
+      return quote! {
+        let #field_name = napi::bindgen_prelude::BigInt::from(stream.#field_method()?);
+      };
+    }
+
     quote! {
       let #field_name = stream.#field_method()?;
     }
-
+    // !SECTION
   });
 
   quote! {
@@ -291,9 +403,38 @@ fn generate_packet_serialization(fields: &Fields) -> TokenStream2 {
 
     let field_type_string = quote!(#field_type).to_string();
 
+    // Handles Vecs
+    if is_vec(field) {
+      let vec_type = get_vec_generic(field);
+      let len = format_ident!("{}_len", field_name);
+      let field_method = format_ident!("write_{}", vec_type.to_lowercase());
+
+      // Non managed types are handled by their own impls
+      if !is_managed_type(&vec_type) {
+        return quote! {
+          let #len = self.#field_name.len();
+          stream.write_varint(#len as i32)?;
+          for i in 0..#len {
+            let mut bin = self.#field_name[i].serialize()?;
+            stream.append(&mut bin);
+          }
+        }
+      }
+
+      // Managed types are handled by binary stream
+      return quote! {
+        let #len = self.#field_name.len();
+        stream.write_varint(#len as i32)?;
+        for i in 0..#len {
+          stream.#field_method(self.#field_name[i])?;
+        }
+      }
+    }
+
+    // We have to do this after otherwise it will panic on vecs
     let field_method = format_ident!("write_{}", field_type_string.to_lowercase());
 
-    // Types that are not manaually managed will be required to 
+    // Hacky type conversion handling
     if is_not_managed_type(field) {
       // panic!("'{}' is not supported in packets yet!", field_type_string);
 
@@ -301,6 +442,13 @@ fn generate_packet_serialization(fields: &Fields) -> TokenStream2 {
         let mut #field_method = self.#field_name.serialize()?;
         stream.append(&mut #field_method);
       }
+    }
+
+    // Handle hacky bigint stuff
+    if field_type_string == "U64" {
+      return quote! {
+        stream.#field_method(self.#field_name.get_u64().1)?;
+      };
     }
 
     // Handle ownership of strings
@@ -330,6 +478,34 @@ fn is_not_managed_type(field: &Field) -> bool {
   false
 }
 
+fn is_vec(field: &Field) -> bool {
+  if let Type::Path(path) = &field.ty {
+    if let Some(segment) = path.path.segments.last() {
+        let ident = &segment.ident.to_string();
+        return ident == "Vec";
+    }
+  }
+  false
+}
+
+fn get_vec_generic(field: &Field) -> String {
+  if let Type::Path(path) = &field.ty {
+    if let Some(segment) = path.path.segments.last() {
+      if segment.ident.to_string() == "Vec" {
+        if let PathArguments::AngleBracketed(args) = &segment.arguments {
+          if let Some(GenericArgument::Type(type_arg)) = args.args.first() {
+            let type_name = quote::quote! { #type_arg }.to_string();
+
+            return type_name;
+          }
+        }
+      }
+    }
+  }
+  panic!("Field is not a Vec!");
+}
+
+
 fn is_managed_type(ident: &str) -> bool {
   let managed_types = [
     "String",
@@ -346,6 +522,11 @@ fn is_managed_type(ident: &str) -> bool {
     "u128",
     "f32",
     "f64",
+    "Vec",
+    // Custom types
+    "LU16",
+    "LF32",
+    "U64",
     "VarInt"
   ];
 

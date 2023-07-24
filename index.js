@@ -252,8 +252,10 @@ if (!nativeBinding) {
   throw new Error(`Failed to load native binding`)
 }
 
-const { Packet, serialize, deserialize } = nativeBinding
+const { PlayStatus, CompressionAlgorithm, Packet, serialize, deserialize } = nativeBinding
 
+module.exports.PlayStatus = PlayStatus
+module.exports.CompressionAlgorithm = CompressionAlgorithm
 module.exports.Packet = Packet
 module.exports.serialize = serialize
 module.exports.deserialize = deserialize

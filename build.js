@@ -28,7 +28,9 @@ const remove = (str, index) => {
 // that napi doesn't know how to serialize so it just assumes the type exists.
 const injection = /* ts */ `// Injected types by build.js
 export type VarInt = number;
-
+export type LU16 = number;
+export type LF32 = number;
+export type U64 = bigint;
 `; 
 inject(injection, 0);
 
