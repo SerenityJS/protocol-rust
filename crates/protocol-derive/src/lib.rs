@@ -59,21 +59,13 @@ pub fn use_constructor_cloning_derive(input: TokenStream) -> TokenStream {
 
 #[proc_macro_attribute]
 pub fn packet(args: TokenStream, item: TokenStream) -> TokenStream {
-  // format is packet(0x00) parse the hex id out of args
-  let id = args.to_string().replace("0x", "");
-  let id = i32::from_str_radix(&id, 16).unwrap();
-
   let ast = parse_macro_input!(item as DeriveInput);
   let struct_name = &ast.ident;
-
-  if !struct_name.to_string().ends_with("Packet") {
-    panic!("Packet structs must end with 'Packet' in their name.");
-  }
 
   // Get the fields and types of the struct
   let fields = match ast.data { 
     Data::Struct(ref data_struct) => &data_struct.fields,
-    _ => panic!("FixNapi derive macro can only be used on structs"),
+    _ => panic!("packet derive macro can only be used on structs"),
   };
 
   // Generate the from_object function
@@ -84,14 +76,62 @@ pub fn packet(args: TokenStream, item: TokenStream) -> TokenStream {
   let serialize = generate_packet_serialization(fields);
   let deserialize = generate_packet_deserialization(fields);
 
+  // If there are args then it is a root packet struct
+  if !args.is_empty() {
+    // format is packet(0x00) parse the hex id out of args
+    let id = args.to_string().replace("0x", "");
+    let id = i32::from_str_radix(&id, 16).unwrap();
+
+    if !struct_name.to_string().ends_with("Packet") {
+      panic!("Root packet structs must end with 'Packet' in their name.");
+    }
+
+    let gen = quote! {
+      #ast
+  
+      impl #struct_name {
+        pub const ID: crate::binary::VarInt = #id;
+      }
+  
+      impl crate::packets::prelude::PacketConversion for #struct_name {
+        fn from_object(data: napi::bindgen_prelude::Object) -> napi::bindgen_prelude::Result<Self> {
+          #from_object
+        }
+        fn to_object(&self, env: napi::bindgen_prelude::Env) -> napi::bindgen_prelude::Result<napi::bindgen_prelude::Object> {
+          let mut object = env.create_object()?;
+  
+          #to_object
+  
+          Ok(object)
+        }
+      }
+  
+      impl crate::packets::prelude::PacketSerialization for #struct_name {
+        fn serialize(&self) -> napi::bindgen_prelude::Result<napi::bindgen_prelude::Buffer> {
+          let mut stream = crate::binary::BinaryStream::new();
+  
+          stream.write_varint(#struct_name::ID)?;
+          #serialize
+  
+          Ok(stream.data.into())
+        }
+        fn deserialize(data: napi::bindgen_prelude::Buffer) -> napi::bindgen_prelude::Result<Self> {
+          let mut stream = crate::binary::BinaryStream::from(data.into());
+  
+          let _id = stream.read_varint()?;
+          #deserialize
+        }
+      }
+    };
+  
+    return gen.into();
+  }
+
+  // Otherwise it is a nested structure and needs to be handled differently
   let gen = quote! {
     #ast
 
-    impl #struct_name {
-      pub const ID: crate::binary::VarInt = #id;
-    }
-
-    impl super::PacketConversion for #struct_name {
+    impl crate::packets::prelude::PacketChildConversion for #struct_name {
       fn from_object(data: napi::bindgen_prelude::Object) -> napi::bindgen_prelude::Result<Self> {
         #from_object
       }
@@ -104,24 +144,21 @@ pub fn packet(args: TokenStream, item: TokenStream) -> TokenStream {
       }
     }
 
-    impl super::PacketSerialization for #struct_name {
-      fn serialize(&self) -> napi::bindgen_prelude::Result<napi::bindgen_prelude::Buffer> {
+    impl crate::packets::prelude::PacketChildSerialization for #struct_name {
+      fn serialize(&self) -> napi::bindgen_prelude::Result<crate::binary::BinaryStream> {
         let mut stream = crate::binary::BinaryStream::new();
-
-        stream.write_varint(#struct_name::ID)?;
+    
         #serialize
 
-        Ok(stream.data.into())
+        Ok(stream)
       }
-      fn deserialize(data: napi::bindgen_prelude::Buffer) -> napi::bindgen_prelude::Result<Self> {
-        let mut stream = crate::binary::BinaryStream::from(data.into());
-
-        let _id = stream.read_varint()?;
+    
+      fn deserialize(stream: &mut crate::binary::BinaryStream) -> napi::bindgen_prelude::Result<Self> {
         #deserialize
       }
     }
   };
-
+  
   gen.into()
 }
 
@@ -256,6 +293,7 @@ fn generate_packet_serialization(fields: &Fields) -> TokenStream2 {
 
     let field_method = format_ident!("write_{}", field_type_string.to_lowercase());
 
+    // Types that are not manaually managed will be required to 
     if is_not_managed_type(field) {
       // panic!("'{}' is not supported in packets yet!", field_type_string);
 
@@ -313,11 +351,6 @@ fn is_managed_type(ident: &str) -> bool {
 
   managed_types.contains(&ident)
 }
-
-// #[proc_macro_attribute]
-// pub fn packet_child(args: TokenStream, item: TokenStream) -> TokenStream {
-
-// }
 
 // Generates the serialize and deserialize functions for packet enum
 #[proc_macro_attribute]

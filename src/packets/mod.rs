@@ -7,7 +7,7 @@ mod request_network_settings;
 use protocol_derive::enum_serializer;
 use napi::bindgen_prelude::*;
 
-use crate::binary::BinaryStream;
+use prelude::*;
 
 // TODO: I heavily dislike how packet ids have to be defined
 // here and in the packet attribute macro. I'd like to find a
@@ -22,22 +22,24 @@ pub enum Packet {
 }
 
 // These must be implemented on packets so the enum serializer can work
-pub trait PacketConversion: Sized {
-  fn from_object(data: Object) -> Result<Self>;
-  fn to_object(&self, env: Env) -> Result<Object>;
-}
-
-pub trait PacketSerialization: Sized {
-  fn serialize(&self) -> Result<Buffer>;
-  fn deserialize(data: Buffer) -> Result<Self>;
-}
-
-pub trait PacketChildConversion: Sized {
-  fn from_object(data: Object) -> Result<Self>;
-  fn to_object(&self, env: Env) -> Result<Object>;
-}
-
-pub trait PacketChildSerialization: Sized {
-  fn serialize(&self) -> Result<BinaryStream>;
-  fn deserialize(data: &mut BinaryStream) -> Result<Self>;
+pub mod prelude {
+  pub trait PacketConversion: Sized {
+    fn from_object(data: napi::bindgen_prelude::Object) -> napi::bindgen_prelude::Result<Self>;
+    fn to_object(&self, env: napi::bindgen_prelude::Env) -> napi::bindgen_prelude::Result<napi::bindgen_prelude::Object>;
+  }
+  
+  pub trait PacketSerialization: Sized {
+    fn serialize(&self) -> napi::bindgen_prelude::Result<napi::bindgen_prelude::Buffer>;
+    fn deserialize(data: napi::bindgen_prelude::Buffer) -> napi::bindgen_prelude::Result<Self>;
+  }
+  
+  pub trait PacketChildConversion: Sized {
+    fn from_object(data: napi::bindgen_prelude::Object) -> napi::bindgen_prelude::Result<Self>;
+    fn to_object(&self, env: napi::bindgen_prelude::Env) -> napi::bindgen_prelude::Result<napi::bindgen_prelude::Object>;
+  }
+  
+  pub trait PacketChildSerialization: Sized {
+    fn serialize(&self) -> napi::bindgen_prelude::Result<crate::binary::BinaryStream>;
+    fn deserialize(data: &mut crate::binary::BinaryStream) -> napi::bindgen_prelude::Result<Self>;
+  }
 }
