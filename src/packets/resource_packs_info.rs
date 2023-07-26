@@ -1,14 +1,14 @@
 use protocol_derive::packet;
 use crate::packets::prelude::*;
-use crate::binary::U64;
+use crate::binary::prelude::*;
 
 #[packet(0x06)]
 pub struct ResourcePacksInfoPacket {
   pub must_accept: bool,
   pub has_scripts: bool,
   pub force_server_packs: bool,
-  pub behaviour_packs: Vec<BehaviourPackInfo>,
-  pub resource_packs: Vec<ResourcePackInfo>,
+  #[LI16] pub behaviour_packs: Vec<BehaviourPackInfo>,
+  #[LI16] pub resource_packs: Vec<ResourcePackInfo>,
 }
 
 #[packet]

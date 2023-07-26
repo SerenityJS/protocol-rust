@@ -2,116 +2,124 @@ extern crate proc_macro;
 
 use proc_macro::TokenStream;
 use proc_macro2::TokenStream as TokenStream2;
-use quote::{quote, format_ident};
-use syn::{parse_macro_input, DeriveInput, DataEnum, Ident, Data, Fields, Field, Type, PathArguments, GenericArgument};
+use quote::{quote, ToTokens, format_ident};
+use syn::{
+  Data::{Struct, Enum},
+  DataStruct,
+  Fields::Named,
+  Result,
+  parse_macro_input,
+  DeriveInput,
+  FieldsNamed,
+  Field,
+  Ident, DataEnum, Type, PathArguments, GenericArgument
+};
 use convert_case::{Case, Casing};
 
-// This is not optimal, children constructors this is applied to will not be references in the parent
-// they will be cloned. This is a bit of a stinky hack, should probably try to get references working.
-#[proc_macro_derive(UseConstructorCloning)]
-pub fn use_constructor_cloning_derive(input: TokenStream) -> TokenStream {
-  let ast = parse_macro_input!(input as DeriveInput);
-  let struct_name = &ast.ident;
+struct PacketMeta {
+  id: Option<i32>,
+  _attrs: Vec<String>
+}
 
-  // Gets all the fields in the struct.
-  let fields = match ast.data { 
-    syn::Data::Struct(ref data_struct) => &data_struct.fields,
-    _ => panic!("FixNapi derive macro can only be used on structs"),
-  };
+impl PacketMeta {
+  fn parse(input: TokenStream) -> Result<Self> {
+    let attrs: Vec<String> = input.to_string().split(',')
+      .map(|arg| arg.trim().to_string())
+      .filter(|arg| !arg.is_empty())
+      .collect();
 
-  // Gets all the field names as idents for later use.
-  let field_name_indentifiers = fields.iter().map(|field| {
-    field.ident.as_ref().unwrap()
-  });
+    // Attempt to get id attribute. Will be a literal attribute starting with 0x
+    let id = attrs.iter().find_map(|attr| {
+      let attr = attr;
+      if attr.starts_with("0x") {
+        let id = attr.replace("0x", "");
+        let id = i32::from_str_radix(&id, 16).unwrap();
+        
+        Some(id)
+      } else {
+        None
+      }
+    });
 
-  // Loops through all fields and generates a serialize function
-  let mut gens = Vec::new();
-  fields.iter().for_each(|field| {
-    let field_name = field.ident.as_ref().unwrap();
-    // let field_type = &field.ty;
+    Ok(PacketMeta {
+      id,
+      _attrs: attrs
+    })
+  }
+}
 
-    // This will extract the field from the object
-    let gen = quote! {
-      let #field_name = cloned.#field_name;
+struct PacketField {
+  field: Field,
+  attr: Option<String>
+}
+
+impl PacketField {
+  fn parse(ast: &DeriveInput) -> syn::Result<Vec<Self>> {
+    let ast_fields = match ast.data {
+      Struct(DataStruct { fields: Named(FieldsNamed { ref named, .. }), .. }) => named,
+      _ => panic!("Only structs with named fields are supported"),
     };
 
-    gens.push(gen);
-  });
+    let fields = ast_fields.iter()
+      .map(|field| {
+        let attrs: Vec<String> = field.attrs.iter()
+          .map(|attr| attr.path().to_token_stream().to_string())
+          .collect();
 
-  // Implements it all into out impl
-  let gen = quote! {
-    impl napi::bindgen_prelude::FromNapiValue for #struct_name {
-      unsafe fn from_napi_value(env: napi::sys::napi_env, value: napi::sys::napi_value) -> napi::Result<Self> {
-        let object: napi::bindgen_prelude::ClassInstance<#struct_name> = napi::bindgen_prelude::ClassInstance::from_napi_value(env, value)?;
-        let cloned = object.clone();
+        // Filter out attributes that start with "napi"
+        let attrs: Vec<String> = attrs.into_iter()
+          .filter(|attr| !attr.starts_with("napi"))
+          .collect();
 
-        #(#gens)*
+        let attr = attrs.first().cloned();
 
-        Ok(#struct_name {
-          #(#field_name_indentifiers),*
-        })
-      }
-    }
-  };
+        PacketField {
+          field: field.clone(),
+          attr
+        }
+      }).collect();
 
-  gen.into()
+    Ok(fields)
+  }
 }
 
 #[proc_macro_attribute]
-pub fn packet(args: TokenStream, item: TokenStream) -> TokenStream {
-  let ast = parse_macro_input!(item as DeriveInput);
-  let struct_name = &ast.ident;
+pub fn packet(args: TokenStream, input: TokenStream) -> TokenStream {
+  let ast = parse_macro_input!(input as DeriveInput);
+  let name = &ast.ident;
 
-  // Get the fields and types of the struct
-  let fields = match ast.data { 
-    Data::Struct(ref data_struct) => &data_struct.fields,
-    _ => panic!("packet derive macro can only be used on structs"),
-  };
+  // Parse packet attributes
+  let meta = PacketMeta::parse(args)
+    .expect("Failed to parse packet attributes");
+  let id = meta.id;
 
-  // Generate the from_object function
-  let from_object = generate_packet_conversion_from_object(fields);
-  let to_object = generate_packet_conversion_to_object(fields);
-
-  // Generate the serialize and deserialize functions
-  let serialize = generate_packet_serialization(fields);
-  let deserialize = generate_packet_deserialization(fields);
-
-  // If there are args then it is a root packet struct
-  if !args.is_empty() {
-    // format is packet(0x00) parse the hex id out of args
-    let id = args.to_string().replace("0x", "");
-    let id = i32::from_str_radix(&id, 16).unwrap();
-
-    if !struct_name.to_string().ends_with("Packet") {
+  // Root packet structs must end with "Packet" for post build type manipulation
+  if let Some(_) = id {
+    if !name.to_string().ends_with("Packet") {
       panic!("Root packet structs must end with 'Packet' in their name.");
     }
+  }
 
-    let gen = quote! {
-      #[napi(object)]
-      #ast
-  
-      impl #struct_name {
-        pub const ID: crate::binary::VarInt = #id;
+  // Generate the packet field data
+  let fields = PacketField::parse(&ast)
+    .expect("Failed to parse packet fields");
+
+  let serialize = object_serialize_gen(&fields, false);
+  let deserialize = object_serialize_gen(&fields, true);
+  let to_object = object_conversion_gen(&fields, false);
+  let from_object = object_conversion_gen(&fields, true);
+
+  let impls = match id {
+    Some(id) => quote! {
+      impl #name {
+        pub const ID: crate::binary::prelude::VarInt = #id;
       }
-  
-      impl crate::packets::prelude::PacketConversion for #struct_name {
-        fn from_object(data: napi::bindgen_prelude::Object) -> napi::bindgen_prelude::Result<Self> {
-          #from_object
-        }
-        fn to_object(&self, env: napi::bindgen_prelude::Env) -> napi::bindgen_prelude::Result<napi::bindgen_prelude::Object> {
-          let mut object = env.create_object()?;
-  
-          #to_object
-  
-          Ok(object)
-        }
-      }
-  
-      impl crate::packets::prelude::PacketSerialization for #struct_name {
+
+      impl crate::packets::prelude::PacketSerialization for #name {
         fn serialize(&self) -> napi::bindgen_prelude::Result<napi::bindgen_prelude::Buffer> {
           let mut stream = crate::binary::BinaryStream::new();
   
-          stream.write_varint(#struct_name::ID)?;
+          stream.write_varint(#name::ID)?;
           #serialize
   
           Ok(stream.data.into())
@@ -123,22 +131,32 @@ pub fn packet(args: TokenStream, item: TokenStream) -> TokenStream {
           #deserialize
         }
       }
-    };
+    },
+    None => quote! {
+      impl crate::packets::prelude::PacketChildSerialization for #name {
+        fn serialize(&self) -> napi::bindgen_prelude::Result<crate::binary::BinaryStream> {
+          let mut stream = crate::binary::BinaryStream::new();
+      
+          #serialize
+  
+          Ok(stream)
+        }
+      
+        fn deserialize(stream: &mut crate::binary::BinaryStream) -> napi::bindgen_prelude::Result<Self> {
+          #deserialize
+        }
+      }
+    }
+  };
 
-    // panic!("{}", gen);
-
-    return gen.into();
-  }
-
-  // Otherwise it is a nested structure and needs to be handled differently
   let gen = quote! {
     #[napi(object)]
+    #[derive(protocol_derive::PacketFieldAttributes)]
     #ast
 
-    impl crate::packets::prelude::PacketChildConversion for #struct_name {
-      fn from_object(data: napi::bindgen_prelude::Object) -> napi::bindgen_prelude::Result<Self> {
-        #from_object
-      }
+    #impls
+
+    impl crate::packets::prelude::PacketConversion for #name {
       fn to_object(&self, env: napi::bindgen_prelude::Env) -> napi::bindgen_prelude::Result<napi::bindgen_prelude::Object> {
         let mut object = env.create_object()?;
 
@@ -146,340 +164,320 @@ pub fn packet(args: TokenStream, item: TokenStream) -> TokenStream {
 
         Ok(object)
       }
-    }
 
-    impl crate::packets::prelude::PacketChildSerialization for #struct_name {
-      fn serialize(&self) -> napi::bindgen_prelude::Result<crate::binary::BinaryStream> {
-        let mut stream = crate::binary::BinaryStream::new();
-    
-        #serialize
-
-        Ok(stream)
-      }
-    
-      fn deserialize(stream: &mut crate::binary::BinaryStream) -> napi::bindgen_prelude::Result<Self> {
-        #deserialize
+      fn from_object(data: napi::bindgen_prelude::Object) -> napi::bindgen_prelude::Result<Self> {
+        #from_object
       }
     }
   };
-  
+
+  // println!("{}", gen.to_string());
+
   gen.into()
 }
 
-fn generate_packet_conversion_from_object(fields: &Fields) -> TokenStream2 {
+fn object_conversion_gen(fields: &Vec<PacketField>, from: bool) -> TokenStream2 {
   let field_names = fields.iter().map(|field| {
-    field.ident.as_ref().unwrap()
+    field.field.ident.clone().unwrap()
   });
 
-  let getters = fields.iter().map(|field| {
-    let field_name = field.ident.as_ref().unwrap();
-    let field_type = &field.ty;
-    // let field_type_string = quote!(#field_type).to_string();
+  let actions = fields.iter().map(|field| {
+    let field_name = field.field.ident.clone().unwrap();
+    let field_type = field.field.ty.clone();
+    
+    conversion_actions_gen(field_name, field_type, from)
+  });
 
-    let field_name_camel = field_name.to_string().from_case(Case::Snake).to_case(Case::Camel);
+  match from {
+    true => quote! {
+      #(#actions)*
 
-    // Handles Vecs
-    if is_vec(field) {
-      let vec_type_string = get_vec_generic(field);
-      let vec_type = format_ident!("{}", vec_type_string);
-      let fet = format_ident!("{}_fet", field_name);
+      Ok(Self {
+        #(#field_names),*
+      })
+    },
+    false => quote! {
+      #(#actions)*
+    }
+  }
+}
 
-      // Non managed types are handled by their own impls
-      if !is_managed_type(&vec_type_string) {
-        return quote! {
-          let #fet: Vec<napi::bindgen_prelude::Object> = match data.get_named_property(#field_name_camel) {
-            Ok(value) => value,
-            Err(err) => {
-              return Err(napi::Error::new(
-                err.status,
-                format!("Expected property '{}' to be of type '{}'\n{}", #field_name_camel, stringify!(#field_type), err)
-              ));
+fn conversion_actions_gen(field_name: Ident, field_type: Type, from: bool) -> TokenStream2 {
+  let field_type_string = quote!(#field_type).to_string();
+  let field_name_camel = field_name.to_string().from_case(Case::Snake).to_case(Case::Camel);
+
+  let match_arms = quote! {
+    Ok(value) => value,
+    Err(err) => return Err(napi::Error::new(
+      err.status,
+      format!("Expected property '{}' to be of type '{}'\n{}", #field_name_camel, stringify!(#field_type), err),
+    ))
+  };
+
+  match from {
+    true => {
+      // Handles Vecs
+      if is_vec(&field_type) {
+        let vec_type_string = get_vec_type(&field_type);
+        let vec_type = format_ident!("{}", vec_type_string);
+
+        if vec_type_string == "vec" {
+          panic!("Nested Vecs are not supported! Please use a struct.");
+        }
+
+        return match is_managed_type(&vec_type_string) {
+          // If its managed we can return default pretty much.
+          true => quote! {
+            let #field_name: #field_type = match data.get_named_property(#field_name_camel) {
+              #match_arms
+            };
+          },
+          // If its not managed then we need to serialize all the structs into objects
+          // and add them to a vec.
+          false => {
+            let napi_raw = format_ident!("{}_napi", field_name);
+
+            quote! {
+              let #napi_raw: Vec<napi::bindgen_prelude::Object> = match data.get_named_property(#field_name_camel) {
+                #match_arms
+              };
+              let mut #field_name: #field_type = Vec::new();
+              for item in #napi_raw {
+                #field_name.push(#vec_type::from_object(item)?);
+              }
             }
-          };
-          let mut #field_name: #field_type = Vec::new();
-          for item in #fet {
-            #field_name.push(#vec_type::from_object(item)?);
-          }
-        }
-      }
-      
-      // Managed types are handled by binary stream
-      return quote! {
-        let #field_name: #field_type = match data.get_named_property(#field_name_camel) {
-          Ok(value) => value,
-          Err(err) => {
-            return Err(napi::Error::new(
-              err.status,
-              format!("Expected property '{}' to be of type '{}'\n{}", #field_name_camel, stringify!(#field_type), err)
-            ));
           }
         };
       }
-    }
 
-    // Hacky type conversion handling
-    if is_not_managed_type(field) {
-      // panic!("'{}' is not supported in packets yet!", field_type_string);
+      // Handles everything that isn't a Vec
+      let object_accessor = match is_managed_type(&field_type_string) {
+        true => quote!(data.get_named_property(#field_name_camel)),
+        false => quote!(#field_type::from_object(data.get_named_property(#field_name_camel)?))
+      };
 
-      return quote! {
-        let #field_name: #field_type = match #field_type::from_object(data.get_named_property(#field_name_camel)?) {
-          Ok(value) => value,
-          Err(err) => {
-            return Err(napi::Error::new(
-              err.status,
-              format!("Expected property '{}' to be of type '{}'\n{}", #field_name_camel, stringify!(#field_type), err)
-            ));
-          }
+      quote! {
+        let #field_name: #field_type = match #object_accessor {
+          #match_arms
         };
       }
-    }
+    },
+    false => {
+      // Handles Vecs
+      if is_vec(&field_type) {
+        let vec_type_string = get_vec_type(&field_type);
+        // let vec_type = format_ident!("{}", vec_type_string);
 
-    quote! {
-      // let #field_name: #field_type = data.get_named_property(stringify!(#field_name))?;
-      // above but with custom napi error
-      let #field_name: #field_type = match data.get_named_property(#field_name_camel) {
-        Ok(value) => value,
-        Err(err) => {
-          return Err(napi::Error::new(
-            err.status,
-            format!("Expected property '{}' to be of type '{}'\n{}", #field_name_camel, stringify!(#field_type), err)
-          ));
+        if vec_type_string == "vec" {
+          panic!("Nested Vecs are not supported! Please use a struct.");
         }
-      };
-      
-    }
-  });
 
-  quote! {
-    #(#getters)*
-
-    Ok(Self {
-      #(#field_names),*
-    })
-  }
-}
-
-fn generate_packet_conversion_to_object(fields: &Fields) -> TokenStream2 {
-  let setters = fields.iter().map(|field| {
-    let field_name = field.ident.as_ref().unwrap();
-    let field_name_camel = field_name.to_string().from_case(Case::Snake).to_case(Case::Camel);
-
-    let field_type = &field.ty;
-    let field_type_string = quote!(#field_type).to_string();
-  
-    // Handles Vecs
-    if is_vec(field) {
-      let vec_type = get_vec_generic(field);
-
-      // Non managed types are handled by their own impls
-      if !is_managed_type(&vec_type) {
-        return quote! {
-          let mut #field_name = env.create_array_with_length(self.#field_name.len())?;
-          for (i, item) in self.#field_name.iter().enumerate() {
-            let obj = item.to_object(env)?;
-            #field_name.set_element(i as u32, obj)?;
+        return match is_managed_type(&vec_type_string) {
+          true => quote! {
+            object.set_named_property(#field_name_camel, self.#field_name.to_owned())?;
+          },
+          false => quote! {
+            let mut #field_name = env.create_array_with_length(self.#field_name.len())?;
+            for (i, item) in self.#field_name.iter().enumerate() {
+              let obj = item.to_object(env)?;
+              #field_name.set_element(i as u32, obj)?;
+            }
+            object.set_named_property(#field_name_camel, #field_name)?;
           }
-          object.set_named_property(#field_name_camel, #field_name)?;
         }
       }
 
-      // Managed types are handled by binary stream
-      return quote! {
-        object.set_named_property(#field_name_camel, &self.#field_name)?;
-      }
-
-    }
-
-    // Hacky type conversion handling
-    if is_not_managed_type(field) {
-      // panic!("'{}' is not supported in packets yet!", field_type_string);
-
-      return quote! {
-        object.set_named_property(#field_name_camel, self.#field_name.to_object(env)?)?;
-      }
-    }
-
-    // Handle ownership for bigints
-    if field_type_string == "U64" {
-      return quote! {
-        object.set_named_property(#field_name_camel, self.#field_name.to_owned())?;
+      // Handles everything that isn't a Vec
+      let object_accessor = match is_managed_type(&field_type_string) {
+        true => quote!(self.#field_name.to_owned()),
+        false => quote!(self.#field_name.to_object(env)?)
       };
-    }
 
-    // Handle ownership of strings
-    if field_type_string == "String" {
-      return quote! {
-        object.set_named_property(#field_name_camel, self.#field_name.to_owned())?;
+      quote! {
+        object.set_named_property(#field_name_camel, #object_accessor)?;
       }
     }
-
-    quote! {
-      object.set_named_property(#field_name_camel, self.#field_name)?;
-    }
-  });
-
-  quote! {
-    #(#setters)*
   }
 }
 
-fn generate_packet_deserialization(fields: &Fields) -> TokenStream2 {
+fn object_serialize_gen(fields: &Vec<PacketField>, from: bool) -> TokenStream2 {
   let field_names = fields.iter().map(|field| {
-    field.ident.as_ref().unwrap()
+    field.field.ident.clone().unwrap()
   });
 
-  let setters = fields.iter().map(|field| {
-    let field_name = field.ident.as_ref().unwrap();
-    let field_type = &field.ty;
+  let actions = fields.iter().map(|field| {
+    let field_name = field.field.ident.clone().unwrap();
+    let field_type = field.field.ty.clone();
 
-    let field_type_string = quote!(#field_type).to_string();
+    serialize_actions_gen(field_name, field_type, &field.attr, from)
+  });
 
-    // Handles Vecs
-    if is_vec(field) {
-      let vec_type_string = get_vec_generic(field);
-      let vec_type = format_ident!("{}", vec_type_string);
-      let len = format_ident!("{}_len", field_name);
-      let field_method = format_ident!("read_{}", vec_type_string.to_lowercase());
+  match from {
+    true => quote! {
+      #(#actions)*
 
-      // Non managed types are handled by their own impls
-      if !is_managed_type(&vec_type_string) {
-        return quote! {
-          let #len = stream.read_varint()?;
-          let mut #field_name: #field_type = Vec::new();
-          for _ in 0..#len {
-            #field_name.push(#vec_type::deserialize(&mut stream)?);
+      Ok(Self {
+        #(#field_names),*
+      })
+    },
+    false => quote! {
+      #(#actions)*
+    }
+  }
+}
+
+fn serialize_actions_gen(field_name: Ident, field_type: Type, attr: &Option<String>, from: bool) -> TokenStream2 {
+  let field_type_string = quote!(#field_type).to_string();
+  let field_method = match is_vec(&field_type) {
+    true => format_ident!("noop"),
+    false => match from {
+      true => format_ident!("read_{}", field_type_string.to_lowercase()),
+      false => format_ident!("write_{}", field_type_string.to_lowercase()),
+    }
+  };
+
+  match from {
+    true => {
+      // Handles Vecs
+      if is_vec(&field_type) {
+        let vec_type_string = get_vec_type(&field_type);
+        let vec_type = format_ident!("{}", vec_type_string);
+
+        if vec_type_string == "vec" {
+          panic!("Nested Vecs are not supported! Please use a struct.");
+        }
+
+        let size_type = match attr {
+          Some(attr) => attr.to_string(),
+          None => panic!("Vecs must have a size attribute!"),
+        };  
+        let size_method = match from {
+          true => format_ident!("read_{}", size_type.to_lowercase()),
+          false => format_ident!("write_{}", size_type.to_lowercase()),
+        };
+
+        let len = format_ident!("{}_len", field_name);
+        return match is_managed_type(&vec_type_string) {
+          true => {
+            let field_method = format_ident!("read_{}", vec_type_string.to_lowercase());
+
+            quote! {
+              let #len = stream.#size_method()?;
+              let mut #field_name: #field_type = Vec::new();
+              for _ in 0..#len {
+                #field_name.push(stream.#field_method()?);
+              }
+            }
+          },
+          false => quote! {
+            let #len = stream.#size_method()?;
+            let mut #field_name: #field_type = Vec::new();
+            for _ in 0..#len {
+              #field_name.push(#vec_type::deserialize(&mut stream)?);
+            }
           }
+        };
+      }
+
+      // Handle everything that isn't a Vec
+      let object_accessor = match field_type_string.as_str() {
+        "U64" => quote!(napi::bindgen_prelude::BigInt::from(stream.#field_method()?)),
+        _ => match is_managed_type(&field_type_string) {
+          true => quote!(stream.#field_method()?),
+          false => quote!(#field_type::deserialize(&mut stream)?)
         }
-      }
-
-      // Managed types are handled by binary stream
-      return quote! {
-        let #len = stream.read_varint()?;
-        let mut #field_name = Vec::new();
-        for _ in 0..#len {
-          #field_name.push(stream.#field_method()?);
-        }
-      }
-    }
-
-    // We have to do this after otherwise it will panic on vecs
-    let field_method = format_ident!("read_{}", field_type_string.to_lowercase());
-
-    // Hacky type conversion handling
-    if is_not_managed_type(field) {
-      // panic!("'{}' is not supported in packets yet!", field_type_string);
-
-      return quote! {
-        let #field_name = #field_type::deserialize(&mut stream)?;
-      }
-    }
-
-    // Handle hacky bigint stuff
-    if field_type_string == "U64" {
-      return quote! {
-        let #field_name = napi::bindgen_prelude::BigInt::from(stream.#field_method()?);
       };
-    }
 
-    quote! {
-      let #field_name = stream.#field_method()?;
-    }
-    // !SECTION
-  });
+      quote! {
+        let #field_name: #field_type = #object_accessor;
+      }
+    },
+    false => {// Handles Vecs
+      if is_vec(&field_type) {
+        let vec_type_string = get_vec_type(&field_type);
+        // let vec_type = format_ident!("{}", vec_type_string);
 
-  quote! {
-    #(#setters)*
+        if vec_type_string == "vec" {
+          panic!("Nested Vecs are not supported! Please use a struct.");
+        }
 
-    Ok(Self {
-      #(#field_names),*
-    })
-  }
-}
+        let size_type = match attr {
+          Some(attr) => attr.to_string(),
+          None => panic!("Vecs must have a size attribute!"),
+        };  
+        let size_ident = format_ident!("{}", size_type);
+        let size_method = match from {
+          true => format_ident!("read_{}", size_type.to_lowercase()),
+          false => format_ident!("write_{}", size_type.to_lowercase()),
+        };
 
-fn generate_packet_serialization(fields: &Fields) -> TokenStream2 {
-  let setters = fields.iter().map(|field| {
-    let field_name = field.ident.as_ref().unwrap();
-    let field_type = &field.ty;
+        let len = format_ident!("{}_len", field_name);
+        return match is_managed_type(&vec_type_string) {
+          true => {
+            let field_method = format_ident!("write_{}", vec_type_string.to_lowercase());
 
-    let field_type_string = quote!(#field_type).to_string();
-
-    // Handles Vecs
-    if is_vec(field) {
-      let vec_type = get_vec_generic(field);
-      let len = format_ident!("{}_len", field_name);
-      let field_method = format_ident!("write_{}", vec_type.to_lowercase());
-
-      // Non managed types are handled by their own impls
-      if !is_managed_type(&vec_type) {
-        return quote! {
-          let #len = self.#field_name.len();
-          stream.write_varint(#len as i32)?;
-          for i in 0..#len {
-            let mut bin = self.#field_name[i].serialize()?;
-            stream.append(&mut bin);
+            quote! {
+              let #len = self.#field_name.len();
+              stream.#size_method(#len as #size_ident)?;
+              for i in 0..#len {
+                stream.#field_method(self.#field_name[i].to_owned())?;
+              }
+            }
+          },
+          false => quote! {
+            let #len = self.#field_name.len();
+            stream.#size_method(#len as #size_ident)?;
+            for i in 0..#len {
+              let mut bin = self.#field_name[i].serialize()?;
+              stream.append(&mut bin);
+            }
           }
+        };
+      }
+
+      // Handle everything that isn't a Vec
+      let object_accessor = match field_type_string.as_str() {
+        "U64" => quote!(stream.#field_method(self.#field_name.get_u64().1)?),
+        _ => match is_managed_type(&field_type_string) {
+          true => quote!{ stream.#field_method(self.#field_name.to_owned())? },
+          false => quote!{ stream.append(&mut self.#field_name.serialize()?) }
         }
-      }
-
-      // Managed types are handled by binary stream
-      return quote! {
-        let #len = self.#field_name.len();
-        stream.write_varint(#len as i32)?;
-        for i in 0..#len {
-          stream.#field_method(self.#field_name[i])?;
-        }
-      }
-    }
-
-    // We have to do this after otherwise it will panic on vecs
-    let field_method = format_ident!("write_{}", field_type_string.to_lowercase());
-
-    // Hacky type conversion handling
-    if is_not_managed_type(field) {
-      // panic!("'{}' is not supported in packets yet!", field_type_string);
-
-      return quote! {
-        let mut #field_method = self.#field_name.serialize()?;
-        stream.append(&mut #field_method);
-      }
-    }
-
-    // Handle hacky bigint stuff
-    if field_type_string == "U64" {
-      return quote! {
-        stream.#field_method(self.#field_name.get_u64().1)?;
       };
-    }
 
-    // Handle ownership of strings
-    if field_type_string == "String" {
-      return quote! {
-        stream.#field_method(self.#field_name.to_owned())?;
+      quote! {
+        #object_accessor;
       }
     }
-
-    quote! {
-      stream.#field_method(self.#field_name)?;
-    }
-  });
-
-  quote! {
-    #(#setters)*
   }
 }
 
-fn is_not_managed_type(field: &Field) -> bool {
-  if let Type::Path(path) = &field.ty {
-    if let Some(segment) = path.path.segments.last() {
-        let ident = &segment.ident.to_string();
-        return !is_managed_type(ident);
-    }
+fn is_managed_type(ident: &str) -> bool {
+  match ident {
+      "i8" 
+    | "i16" 
+    | "i32" 
+    | "i64" 
+    | "u8" 
+    | "u16" 
+    | "u32" 
+    | "u64"  
+    | "f32" 
+    | "f64" 
+    | "bool" 
+    | "String"
+    // | "Vec"
+    // Custom Types
+    | "LU16"
+    | "LF32"
+    | "U64"
+    | "VarInt" 
+      => true,
+    _ => false
   }
-  false
 }
 
-fn is_vec(field: &Field) -> bool {
-  if let Type::Path(path) = &field.ty {
+fn is_vec(ty: &Type) -> bool {
+  if let Type::Path(path) = ty {
     if let Some(segment) = path.path.segments.last() {
         let ident = &segment.ident.to_string();
         return ident == "Vec";
@@ -488,8 +486,8 @@ fn is_vec(field: &Field) -> bool {
   false
 }
 
-fn get_vec_generic(field: &Field) -> String {
-  if let Type::Path(path) = &field.ty {
+fn get_vec_type(ty: &Type) -> String {
+  if let Type::Path(path) = ty {
     if let Some(segment) = path.path.segments.last() {
       if segment.ident.to_string() == "Vec" {
         if let PathArguments::AngleBracketed(args) = &segment.arguments {
@@ -505,37 +503,20 @@ fn get_vec_generic(field: &Field) -> String {
   panic!("Field is not a Vec!");
 }
 
-
-fn is_managed_type(ident: &str) -> bool {
-  let managed_types = [
-    "String",
-    "bool",
-    "i8",
-    "i16",
-    "i32",
-    "i64",
-    "u8",
-    "u16",
-    "u32",
-    "u64",
-    "i128",
-    "u128",
-    "f32",
-    "f64",
-    "Vec",
-    // Custom types
-    "LU16",
-    "LF32",
-    "U64",
-    "VarInt"
-  ];
-
-  managed_types.contains(&ident)
+// Has no significant function just allow sizing attributes for properties
+// namely used for arrays. Attributes MUST follow binary naming convention
+#[proc_macro_derive(PacketFieldAttributes, attributes(
+  LI16,
+  LI32,
+  VarInt,
+))]
+pub fn derive_packet_field_attributes(_item: TokenStream) -> TokenStream {
+  TokenStream::new()
 }
 
 // Generates the serialize and deserialize functions for packet enum
 #[proc_macro_attribute]
-pub fn enum_serializer(_args: TokenStream, input: TokenStream) -> TokenStream {
+pub fn packet_enum(_args: TokenStream, input: TokenStream) -> TokenStream {
   let input = parse_macro_input!(input as DeriveInput);
 
   // Extract the name of the enum
@@ -543,7 +524,7 @@ pub fn enum_serializer(_args: TokenStream, input: TokenStream) -> TokenStream {
 
   // Extract the data of the enum
   let data = match &input.data {
-    Data::Enum(data) => data,
+    Enum(data) => data,
     _ => panic!("Only enums are supported."),
   };
 
@@ -558,6 +539,7 @@ pub fn enum_serializer(_args: TokenStream, input: TokenStream) -> TokenStream {
   let match_deserialize = generate_match_arms(enum_name, &data, false);
 
   let expanded = quote! {
+    #[napi]
     #input
 
     #[napi]
@@ -577,6 +559,7 @@ pub fn enum_serializer(_args: TokenStream, input: TokenStream) -> TokenStream {
 
   expanded.into()
 }
+
 
 fn generate_match_arms(enum_name: &Ident, data: &DataEnum, is_serialize: bool) -> TokenStream2 {
   let match_arms = data.variants.iter().map(|variant| {

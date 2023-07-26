@@ -29,6 +29,7 @@ const remove = (str, index) => {
 const injection = /* ts */ `// Injected types by build.js
 export type VarInt = number;
 export type LU16 = number;
+export type LI32 = number;
 export type LF32 = number;
 export type U64 = bigint;
 `; 

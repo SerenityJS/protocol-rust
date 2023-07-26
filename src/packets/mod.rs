@@ -6,10 +6,11 @@ mod server_to_client_handshake;
 mod client_to_server_handshake;
 mod disconnect;
 mod resource_packs_info;
+mod resource_packs_stack;
 mod network_settings;
 mod request_network_settings;
 
-use protocol_derive::enum_serializer;
+use protocol_derive::packet_enum;
 use napi::bindgen_prelude::*;
 
 use prelude::*;
@@ -18,8 +19,7 @@ use prelude::*;
 // here and in the packet attribute macro. I'd like to find a
 // way to only define them once ideally in the macro.
 
-#[napi]
-#[enum_serializer]
+#[packet_enum]
 pub enum Packet {
   Login = 0x01,
   PlayStatus = 0x02,
@@ -27,6 +27,7 @@ pub enum Packet {
   ClientToServerHandshake = 0x04,
   Disconnect = 0x05,
   ResourcePacksInfo = 0x06,
+  ResourcePacksStack = 0x07,
   NetworkSettings = 0x8f,
   RequestNetworkSettings = 0xc1,
 }
@@ -43,10 +44,10 @@ pub mod prelude {
     fn deserialize(data: napi::bindgen_prelude::Buffer) -> napi::bindgen_prelude::Result<Self>;
   }
   
-  pub trait PacketChildConversion: Sized {
-    fn from_object(data: napi::bindgen_prelude::Object) -> napi::bindgen_prelude::Result<Self>;
-    fn to_object(&self, env: napi::bindgen_prelude::Env) -> napi::bindgen_prelude::Result<napi::bindgen_prelude::Object>;
-  }
+  // pub trait PacketChildConversion: Sized {
+  //   fn from_object(data: napi::bindgen_prelude::Object) -> napi::bindgen_prelude::Result<Self>;
+  //   fn to_object(&self, env: napi::bindgen_prelude::Env) -> napi::bindgen_prelude::Result<napi::bindgen_prelude::Object>;
+  // }
   
   pub trait PacketChildSerialization: Sized {
     fn serialize(&self) -> napi::bindgen_prelude::Result<crate::binary::BinaryStream>;

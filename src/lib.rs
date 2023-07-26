@@ -6,6 +6,7 @@ extern crate napi_derive;
 mod binary;
 mod packets;
 
+
 // #[packet(0x01)]
 // #[napi(object)]
 // pub struct Test {

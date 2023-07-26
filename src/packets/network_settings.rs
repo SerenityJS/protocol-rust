@@ -1,6 +1,6 @@
 use protocol_derive::packet;
 use napi::bindgen_prelude::*;
-use crate::binary::{LF32, LU16};
+use crate::binary::prelude::*;
 
 #[packet(0x8f)]
 pub struct NetworkSettingsPacket {

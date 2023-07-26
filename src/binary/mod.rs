@@ -1,12 +1,18 @@
 #![allow(dead_code, unused_variables)]
-use napi::{Result, Error, Status::GenericFailure, bindgen_prelude::BigInt};
+use napi::{Result, Error, Status::GenericFailure};
 
-pub type VarInt = i32;
-pub type LU16 = u16;
-// Napi doesn't support f32 so internally we will convert to f32
-// when serializing and deserializing.
-pub type LF32 = f64;
-pub type U64 = BigInt;
+pub mod prelude {
+  pub type VarInt = i32;
+  pub type LU16 = u16;
+  pub type LI16 = i16;
+  pub type LI32 = i32;
+  // Napi doesn't support f32 so internally we will convert to f32
+  // when serializing and deserializing.
+  pub type LF32 = f64;
+  pub type U64 = napi::bindgen_prelude::BigInt;
+}
+
+use prelude::*;
 
 pub struct BinaryStream {
   pub data: Vec<u8>,
@@ -245,6 +251,60 @@ impl BinaryStream {
     self.cursor += 2;
 
     Ok(u16::from_le_bytes(bytes))
+  }
+}
+
+// Read/Write LU16 with Result and NapiError
+impl BinaryStream {
+  pub fn write_li16(&mut self, value: LI16) -> Result<()> {
+    self.data.extend_from_slice(&value.to_le_bytes());
+
+    Ok(())
+  }
+
+  pub fn read_li16(&mut self) -> Result<LI16> {
+    // Check if the cursor is out of bounds.
+    if self.cursor + 2 > self.data.len() {
+      return Err(Error::new(
+          GenericFailure,
+          "Cursor out of bounds at read_lu16",
+      ));
+    }
+
+    let mut bytes = [0; 2];
+
+    bytes.copy_from_slice(&self.data[self.cursor..self.cursor + 2]);
+
+    self.cursor += 2;
+
+    Ok(i16::from_le_bytes(bytes))
+  }
+}
+
+// Read/Write LI32 with Result and NapiError
+impl BinaryStream {
+  pub fn write_li32(&mut self, value: LI32) -> Result<()> {
+    self.data.extend_from_slice(&value.to_le_bytes());
+
+    Ok(())
+  }
+
+  pub fn read_li32(&mut self) -> Result<LI32> {
+    // Check if the cursor is out of bounds.
+    if self.cursor + 4 > self.data.len() {
+      return Err(Error::new(
+          GenericFailure,
+          "Cursor out of bounds at read_li32",
+      ));
+    }
+
+    let mut bytes = [0; 4];
+
+    bytes.copy_from_slice(&self.data[self.cursor..self.cursor + 4]);
+
+    self.cursor += 4;
+
+    Ok(i32::from_le_bytes(bytes))
   }
 }
 

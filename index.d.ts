@@ -1,6 +1,7 @@
 // Injected types by build.js
 export type VarInt = number;
 export type LU16 = number;
+export type LI32 = number;
 export type LF32 = number;
 export type U64 = bigint;
 /* tslint:disable */
@@ -67,6 +68,23 @@ export interface ResourcePackInfo {
   hasScripts: boolean
   rtxEnabled: boolean
 }
+export interface ResourcePacksStackPacket {
+  mustAccept: boolean
+  behaviourPacks: Array<PackIdVersion>
+  resourcePacks: Array<PackIdVersion>
+  gameVersion: string
+  experiments: Array<Experiment>
+  experimentsPreviouslyUsed: boolean
+}
+export interface PackIdVersion {
+  uuid: string
+  version: string
+  name: string
+}
+export interface Experiment {
+  name: string
+  enabled: boolean
+}
 export interface NetworkSettingsPacket {
   compressionThreshold: LU16
   compressionAlgorithm: CompressionAlgorithm
@@ -88,6 +106,7 @@ export const enum Packet {
   ClientToServerHandshake = 4,
   Disconnect = 5,
   ResourcePacksInfo = 6,
+  ResourcePacksStack = 7,
   NetworkSettings = 143,
   RequestNetworkSettings = 193
 }
@@ -102,6 +121,7 @@ export interface PacketEnumToPacketInjection {
   [Packet.ClientToServerHandshake]: ClientToServerHandshakePacket;
   [Packet.Disconnect]: DisconnectPacket;
   [Packet.ResourcePacksInfo]: ResourcePacksInfoPacket;
+  [Packet.ResourcePacksStack]: ResourcePacksStackPacket;
   [Packet.NetworkSettings]: NetworkSettingsPacket;
   [Packet.RequestNetworkSettings]: RequestNetworkSettingsPacket;
 }
