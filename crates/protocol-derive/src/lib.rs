@@ -18,7 +18,7 @@ use convert_case::{Case, Casing};
 
 struct PacketMeta {
   id: Option<i32>,
-  _attrs: Vec<String>
+  attrs: Vec<String>
 }
 
 impl PacketMeta {
@@ -43,7 +43,7 @@ impl PacketMeta {
 
     Ok(PacketMeta {
       id,
-      _attrs: attrs
+      attrs,
     })
   }
 }
@@ -92,6 +92,8 @@ pub fn packet(args: TokenStream, input: TokenStream) -> TokenStream {
   let meta = PacketMeta::parse(args)
     .expect("Failed to parse packet attributes");
   let id = meta.id;
+
+  let manual_serialize = meta.attrs.iter().any(|attr| attr == "manual_serialize");
 
   // Root packet structs must end with "Packet" for post build type manipulation
   if let Some(_) = id {
@@ -147,6 +149,11 @@ pub fn packet(args: TokenStream, input: TokenStream) -> TokenStream {
         }
       }
     }
+  };
+
+  let impls = match manual_serialize {
+    true => quote! {},
+    false => impls
   };
 
   let gen = quote! {
