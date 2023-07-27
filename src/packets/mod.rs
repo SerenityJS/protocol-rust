@@ -90,7 +90,7 @@ pub fn frame_packets(packets: Vec<Buffer>) -> napi::Result<Buffer> {
   // bin.write_bytes(vec![0xfe]);
 
   for packet in packets {
-    bin.write_varint(packet.len() as i32)?;
+    bin.write_varint(packet.len() as u32)?;
     bin.write(packet.into())?;
   }
 

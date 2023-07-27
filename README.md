@@ -1,1 +1,1 @@
-yuh
+to get start game packet nbt working just send compound start and end bytes.

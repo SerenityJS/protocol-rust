@@ -17,7 +17,7 @@ use syn::{
 use convert_case::{Case, Casing};
 
 struct PacketMeta {
-  id: Option<i32>,
+  id: Option<u32>,
   attrs: Vec<String>
 }
 
@@ -33,7 +33,7 @@ impl PacketMeta {
       let attr = attr;
       if attr.starts_with("0x") {
         let id = attr.replace("0x", "");
-        let id = i32::from_str_radix(&id, 16).unwrap();
+        let id = u32::from_str_radix(&id, 16).unwrap();
         
         Some(id)
       } else {

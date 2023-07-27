@@ -2,7 +2,7 @@
 use napi::{Result, Error, Status::GenericFailure};
 
 pub mod prelude {
-  pub type VarInt = i32;
+  pub type VarInt = u32;
   pub type LU16 = u16;
   pub type LI16 = i16;
   pub type LI32 = i32;
