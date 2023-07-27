@@ -36,10 +36,38 @@ impl BinaryStream {
   }
 }
 
+// Random methods
+impl BinaryStream {
+  pub fn empty(&self) -> bool {
+    self.cursor == self.data.len()
+  }
+}
+
 // Append another binary stream to this one
 impl BinaryStream {
   pub fn append(&mut self, other: &mut BinaryStream) {
     self.data.append(&mut other.data);
+  }
+  pub fn write(&mut self, other: Vec<u8>) -> Result<()> {
+    self.data.extend_from_slice(&other);
+
+    Ok(())
+  }
+  pub fn read(&mut self, len: usize) -> Result<Vec<u8>> {
+    // Check if the cursor is out of bounds.
+    if self.cursor + len > self.data.len() {
+      return Err(Error::new(
+          GenericFailure,
+          "Cursor out of bounds at read",
+      ));
+    }
+
+    let mut bytes = vec![0; len];
+
+    bytes.copy_from_slice(&self.data[self.cursor..self.cursor + len]);
+    self.cursor += len;
+
+    Ok(bytes)
   }
 }
 
@@ -224,6 +252,33 @@ impl BinaryStream {
     self.cursor += 4;
 
     Ok(f32::from_le_bytes(bytes) as f64)
+  }
+}
+
+// Read/Write u16 with Result and NapiError
+impl BinaryStream {
+  pub fn write_u16(&mut self, value: u16) -> Result<()> {
+    self.data.extend_from_slice(&value.to_be_bytes());
+
+    Ok(())
+  }
+
+  pub fn read_u16(&mut self) -> Result<u16> {
+    // Check if the cursor is out of bounds.
+    if self.cursor + 2 > self.data.len() {
+      return Err(Error::new(
+          GenericFailure,
+          "Cursor out of bounds at read_u16",
+      ));
+    }
+
+    let mut bytes = [0; 2];
+
+    bytes.copy_from_slice(&self.data[self.cursor..self.cursor + 2]);
+
+    self.cursor += 2;
+
+    Ok(u16::from_be_bytes(bytes))
   }
 }
 

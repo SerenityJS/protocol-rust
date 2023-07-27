@@ -131,3 +131,7 @@ export function serialize<T extends Packet>(id: T, data: PacketEnumToPacketInjec
 
 // Updated by build.js
 export function deserialize<T extends Packet>(id: T, data: Buffer): PacketEnumToPacketInjection[T];
+export function getPacketId(data: Buffer): number
+export function framePackets(packets: Array<Buffer>): Buffer
+export function unframePackets(data: Buffer): Array<Buffer>
+export function makeMotd(motd: string, protocolVersion: number, version: string, currentPlayers: number, maxPlayers: number, serverId: string, worldName: string, gamemode: string, gamemodeId: number, portv4: number, portv6: number): Buffer
