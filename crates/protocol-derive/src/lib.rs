@@ -386,6 +386,22 @@ fn serialize_actions_gen(field_name: Ident, field_type: Type, attr: &Option<Stri
         };
       }
 
+      let size_method = match attr {
+        Some(attr) => match is_managed_type(&field_type_string) {
+          true => panic!("Managed types cannot have a size attribute!"),
+          false => {
+            let size_type = attr.to_string();
+            let size_method = format_ident!("read_{}", size_type.to_lowercase());
+  
+            quote! {
+              // We currently do not verify the size is correct
+              stream.#size_method()?;
+            }
+          }
+        },
+        None => quote! {},
+      };
+
       // Handle everything that isn't a Vec
       let object_accessor = match field_type_string.as_str() {
         "U64" => quote!(napi::bindgen_prelude::BigInt::from(stream.#field_method()?)),
@@ -396,6 +412,7 @@ fn serialize_actions_gen(field_name: Ident, field_type: Type, attr: &Option<Stri
       };
 
       quote! {
+        #size_method
         let #field_name: #field_type = #object_accessor;
       }
     },
@@ -442,6 +459,19 @@ fn serialize_actions_gen(field_name: Ident, field_type: Type, attr: &Option<Stri
         };
       }
 
+      // if attr and is not a managed type
+      if attr.is_some() && !is_managed_type(&field_type_string) {
+        let size_type = attr.as_ref().unwrap().to_string();
+        let size_type_ident = format_ident!("{}", size_type);
+        let size_method = format_ident!("write_{}", size_type.to_lowercase());
+
+        return quote! {
+          let mut #field_name = self.#field_name.serialize()?;
+          stream.#size_method(#field_name.len() as #size_type_ident)?;
+          stream.append(&mut #field_name);
+        };
+      }
+
       // Handle everything that isn't a Vec
       let object_accessor = match field_type_string.as_str() {
         "U64" => quote!(stream.#field_method(self.#field_name.get_u64().1)?),
@@ -474,6 +504,7 @@ fn is_managed_type(ident: &str) -> bool {
     | "String"
     // | "Vec"
     // Custom Types
+    | "LittleString"
     | "LU16"
     | "LF32"
     | "U64"

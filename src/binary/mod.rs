@@ -10,6 +10,10 @@ pub mod prelude {
   // when serializing and deserializing.
   pub type LF32 = f64;
   pub type U64 = napi::bindgen_prelude::BigInt;
+
+  // Some weird support bullshit mojang has some strings that are
+  // not sized with varint for some reason.
+  pub type LittleString = String;
 }
 
 use prelude::*;
@@ -39,7 +43,10 @@ impl BinaryStream {
 // Random methods
 impl BinaryStream {
   pub fn empty(&self) -> bool {
-    self.cursor == self.data.len()
+    self.cursor == self.len()
+  }
+  pub fn len(&self) -> usize {
+    self.data.len()
   }
 }
 
@@ -217,6 +224,35 @@ impl BinaryStream {
       return Err(Error::new(
           GenericFailure,
           "Cursor out of bounds at read_string",
+      ));
+    }
+
+    let value = String::from_utf8_lossy(&self.data[self.cursor..self.cursor + length]).to_string();
+
+    self.cursor += length;
+
+    Ok(value)
+  }
+}
+
+//Read/Write LittleString with Result and NapiError
+impl BinaryStream {
+  pub fn write_littlestring(&mut self, value: LittleString) -> Result<()> {
+    self.write_li32(value.len() as i32)?;
+
+    self.data.extend_from_slice(value.as_bytes());
+
+    Ok(())
+  }
+
+  pub fn read_littlestring(&mut self) -> Result<LittleString> {
+    let length = self.read_li32()? as usize;
+
+    // Check if the cursor is out of bounds.
+    if self.cursor + length > self.data.len() {
+      return Err(Error::new(
+          GenericFailure,
+          "Cursor out of bounds at read_littlestring",
       ));
     }
 

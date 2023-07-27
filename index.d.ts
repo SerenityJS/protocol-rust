@@ -4,6 +4,8 @@ export type LU16 = number;
 export type LI32 = number;
 export type LF32 = number;
 export type U64 = bigint;
+export type LittleString = string;
+
 /* tslint:disable */
 /* eslint-disable */
 
@@ -14,8 +16,8 @@ export interface LoginPacket {
   tokens: LoginTokens
 }
 export interface LoginTokens {
-  identity: string
-  client: string
+  identity: LittleString
+  client: LittleString
 }
 export interface PlayStatusPacket {
   status: PlayStatus

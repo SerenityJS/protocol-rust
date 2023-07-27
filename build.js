@@ -32,6 +32,8 @@ export type LU16 = number;
 export type LI32 = number;
 export type LF32 = number;
 export type U64 = bigint;
+export type LittleString = string;
+
 `; 
 inject(injection, 0);
 
