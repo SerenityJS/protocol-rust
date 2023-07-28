@@ -403,12 +403,9 @@ fn serialize_actions_gen(field_name: Ident, field_type: Type, attr: &Option<Stri
       };
 
       // Handle everything that isn't a Vec
-      let object_accessor = match field_type_string.as_str() {
-        "U64" => quote!(napi::bindgen_prelude::BigInt::from(stream.#field_method()?)),
-        _ => match is_managed_type(&field_type_string) {
-          true => quote!(stream.#field_method()?),
-          false => quote!(#field_type::deserialize(&mut stream)?)
-        }
+      let object_accessor = match is_managed_type(&field_type_string) {
+        true => quote!(stream.#field_method()?),
+        false => quote!(#field_type::deserialize(&mut stream)?)
       };
 
       quote! {
@@ -473,12 +470,9 @@ fn serialize_actions_gen(field_name: Ident, field_type: Type, attr: &Option<Stri
       }
 
       // Handle everything that isn't a Vec
-      let object_accessor = match field_type_string.as_str() {
-        "U64" => quote!(stream.#field_method(self.#field_name.get_u64().1)?),
-        _ => match is_managed_type(&field_type_string) {
-          true => quote!{ stream.#field_method(self.#field_name.to_owned())? },
-          false => quote!{ stream.append(&mut self.#field_name.serialize()?) }
-        }
+      let object_accessor = match is_managed_type(&field_type_string) {
+        true => quote!{ stream.#field_method(self.#field_name.to_owned())? },
+        false => quote!{ stream.append(&mut self.#field_name.serialize()?) }
       };
 
       quote! {
@@ -502,13 +496,18 @@ fn is_managed_type(ident: &str) -> bool {
     | "f64" 
     | "bool" 
     | "String"
+    // | "Value"
     // | "Vec"
     // Custom Types
     | "LittleString"
     | "LU16"
+    | "LI16"
     | "LF32"
-    | "U64"
-    | "VarInt" 
+    | "LU64"
+    | "VarInt"
+    | "VarLong"
+    | "ZigZag"
+    | "ZigZong" 
       => true,
     _ => false
   }

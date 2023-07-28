@@ -15,7 +15,7 @@ pub struct ResourcePacksInfoPacket {
 pub struct BehaviourPackInfo {
   pub uuid: String,
   pub version: String,
-  pub size: U64,
+  pub size: LU64,
   pub content_key: String,
   pub sub_pack_name: String,
   pub content_identity: String,
@@ -26,7 +26,7 @@ pub struct BehaviourPackInfo {
 pub struct ResourcePackInfo {
   pub uuid: String,
   pub version: String,
-  pub size: U64,
+  pub size: LU64,
   pub content_key: String,
   pub sub_pack_name: String,
   pub content_identity: String,

@@ -1,5 +1,8 @@
 #![allow(dead_code, unused_variables)]
 
+// Shared Packet Types
+mod types;
+
 mod login;
 mod play_status;
 mod server_to_client_handshake;
@@ -7,6 +10,7 @@ mod client_to_server_handshake;
 mod disconnect;
 mod resource_packs_info;
 mod resource_packs_stack;
+mod start_game;
 mod network_settings;
 mod request_network_settings;
 
@@ -29,6 +33,7 @@ pub enum Packet {
   Disconnect = 0x05,
   ResourcePacksInfo = 0x06,
   ResourcePacksStack = 0x07,
+  StartGame = 0x0b,
   NetworkSettings = 0x8f,
   RequestNetworkSettings = 0xc1,
 }

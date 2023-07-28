@@ -3,13 +3,18 @@ use napi::{Result, Error, Status::GenericFailure};
 
 pub mod prelude {
   pub type VarInt = u32;
+  // u64 is used for varlongs but we must use bigint
+  pub type VarLong = napi::bindgen_prelude::BigInt;
+  pub type ZigZag = i32;
+  // i64 is used for zigzaglongs but we must use bigint
+  pub type ZigZong = napi::bindgen_prelude::BigInt;
   pub type LU16 = u16;
   pub type LI16 = i16;
   pub type LI32 = i32;
   // Napi doesn't support f32 so internally we will convert to f32
   // when serializing and deserializing.
   pub type LF32 = f64;
-  pub type U64 = napi::bindgen_prelude::BigInt;
+  pub type LU64 = napi::bindgen_prelude::BigInt;
 
   // Some weird support bullshit mojang has some strings that are
   // not sized with varint for some reason.
@@ -156,7 +161,7 @@ impl BinaryStream {
 // Read/Write VarInt with Result and NapiError
 impl BinaryStream {
   pub fn write_varint(&mut self, value: VarInt) -> Result<()> {
-    let mut value = value as u32;
+    let mut value = value;
 
     loop {
       let mut temp = (value & 0b01111111) as u8;
@@ -203,6 +208,114 @@ impl BinaryStream {
     }
 
     Ok(result as VarInt)
+  }
+}
+
+// Read/Write ZigZag with Result and NapiError
+impl BinaryStream {
+  pub fn write_zigzag(&mut self, value: ZigZag) -> Result<()> {
+    self.write_varint(((value << 1) ^ (value >> 31)) as VarInt)?;
+
+    Ok(())
+  }
+  pub fn read_zigzag(&mut self) -> Result<ZigZag> {
+    let value = self.read_varint()?;
+
+    Ok(((value >> 1) as ZigZag) ^ (-((value & 1) as ZigZag)))
+  }
+}
+
+// Read/Write varlong with Result and NapiError
+impl BinaryStream {
+  pub fn write_varlong(&mut self, value: VarLong) -> Result<()> {
+    let mut value = value.get_u64().1;
+
+    loop {
+      let mut temp = (value & 0b01111111) as u8;
+
+      value >>= 7;
+
+      if value != 0 {
+        temp |= 0b10000000;
+      }
+
+      self.data.push(temp);
+
+      if value == 0 {
+        break;
+      }
+    }
+
+    Ok(())
+  }
+
+  // Make this safe like the above read_u8 and read_i32
+  pub fn read_varlong(&mut self) -> Result<VarLong> {
+    let mut num_read = 0;
+    let mut result = 0;
+
+    loop {
+      let read = self.read_u8()? as u64;
+      let value = read & 0b01111111;
+
+      result |= value << (7 * num_read);
+
+      num_read += 1;
+
+      if num_read > 10 {
+        return Err(Error::new(
+          GenericFailure,
+          "VarLong is too big",
+        ));
+      }
+
+      if (read & 0b10000000) == 0 {
+        break;
+      }
+    }
+
+    Ok(napi::bindgen_prelude::BigInt::from(result))
+  }
+}
+
+// TODO: this is very unoptimized because not only is it reading from a bigint then reconverting to a bigint
+// but napi has a bug so we also have to manually handle the sign before converting it to and from bigint
+// Read/Write ZigZong with Result and NapiError
+impl BinaryStream {
+  pub fn write_zigzong(&mut self, value: ZigZong) -> Result<()> {
+    // Bug in napi-rs bigints will not read as negative so we have to read it as unsigned
+    // and apply the sign based of the sign boolean in the tuple
+    let converted = value.get_u64();
+    let value = match converted.0 {
+      true => -(converted.1 as i64),
+      false => converted.1 as i64,
+    };    
+
+    let value = napi::bindgen_prelude::BigInt::from(
+      ((value << 1) ^ (value >> 63)) as u64
+    );
+    self.write_varlong(value)?;
+
+    Ok(())
+  }
+  pub fn read_zigzong(&mut self) -> Result<ZigZong> {
+    let value = self.read_varlong()?;
+    let value = value.get_u64().1;
+
+    let value = ((value >> 1) as i64) ^ (-((value & 1) as i64));
+    let signed = value < 0;
+
+    let value = match signed {
+      true => (-value) as u64,
+      false => value as u64,
+    };
+    
+    let value = napi::bindgen_prelude::BigInt {
+      sign_bit: signed,
+      words: vec![value],
+    };
+
+    Ok(value)
   }
 }
 
@@ -401,18 +514,18 @@ impl BinaryStream {
 
 // read/write U64 with Result and NapiError
 impl BinaryStream {
-  pub fn write_u64(&mut self, value: u64) -> Result<()> {
-    self.data.extend_from_slice(&value.to_be_bytes());
+  pub fn write_lu64(&mut self, value: LU64) -> Result<()> {
+    self.data.extend_from_slice(&value.get_u64().1.to_le_bytes());
 
     Ok(())
   }
 
-  pub fn read_u64(&mut self) -> Result<u64> {
+  pub fn read_lu64(&mut self) -> Result<LU64> {
     // Check if the cursor is out of bounds.
     if self.cursor + 8 > self.data.len() {
       return Err(Error::new(
           GenericFailure,
-          "Cursor out of bounds at read_u64",
+          "Cursor out of bounds at read_lu64",
       ));
     }
 
@@ -424,6 +537,6 @@ impl BinaryStream {
 
     
 
-    Ok(u64::from_be_bytes(bytes))
+    Ok(napi::bindgen_prelude::BigInt::from(u64::from_le_bytes(bytes)))
   }
 }
