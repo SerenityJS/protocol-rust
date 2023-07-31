@@ -4,7 +4,9 @@ export type VarLong = bigint;
 export type ZigZag = number;
 export type ZigZong = bigint;
 export type LU16 = number;
+export type LI16 = number;
 export type LI32 = number;
+export type LI64 = bigint;
 export type LF32 = number;
 export type LittleString = string;
 export type LU64 = bigint;
@@ -21,6 +23,10 @@ export interface Vec3F {
 export interface Vec2F {
   x: LF32
   z: LF32
+}
+export interface Experiment {
+  name: string
+  enabled: boolean
 }
 export interface LoginPacket {
   protocolVersion: number
@@ -94,10 +100,6 @@ export interface PackIdVersion {
   version: string
   name: string
 }
-export interface Experiment {
-  name: string
-  enabled: boolean
-}
 export interface StartGamePacket {
   entityId: ZigZong
   runtimeEntityId: VarLong
@@ -128,6 +130,48 @@ export interface StartGamePacket {
   platformBroadcastMode: VarInt
   enableCommands: boolean
   texturePacksRequired: boolean
+  gamerules: Array<GameRule>
+  experiments: Array<Experiment>
+  experimentsPreviouslyUsed: boolean
+  bonusChest: boolean
+  mapEnabled: boolean
+  permissionLevel: PermissionLevel
+  serverChunkTickRange: LI32
+  hasLockedBehaviourPacks: boolean
+  hasLockedResourcePacks: boolean
+  fromLockedWorldTemplate: boolean
+  msaGamertagsOnly: boolean
+  fromWorldTemplate: boolean
+  worldTemplateOptionLocked: boolean
+  onlySpawnV1Villagers: boolean
+  personaDisabled: boolean
+  customSkinsDisabled: boolean
+  emoteChatMuted: boolean
+  gameVersion: string
+  limitedWorldWidth: LI32
+  limitedWorldLength: LI32
+  newNether: boolean
+  eduResourceUri: EducationSharedResourceURI
+  experimentalGameplayOverride: boolean
+  chatRestrictionLevel: ChatRestrictionLevel
+  disablePlayerInteractions: boolean
+  levelId: string
+  worldName: string
+  premiumWorldTemplateId: string
+  isTrial: boolean
+  movementAuthority: MovementAuthority
+  rewindHistorySize: ZigZag
+  serverAuthoritiveBlockBreaking: boolean
+  currentTick: LI64
+  enchantmentSeed: ZigZag
+  itemStates: Array<ItemState>
+  multiplayerCorrelationId: string
+  serverAuthoritativeInventory: boolean
+  engine: string
+  blockPalletteChecksum: LU64
+  clientSideGeneration: boolean
+  blockNetworkIdsAreHashes: boolean
+  serverControlledSound: boolean
 }
 export const enum GameMode {
   Survival = 0,
@@ -152,11 +196,37 @@ export interface GameRule {
   name: string
   editable: boolean
   fieldType: GameRuleType
+  value: boolean | number
 }
 export const enum GameRuleType {
   Bool = 1,
   Int = 2,
   Float = 3
+}
+export const enum PermissionLevel {
+  Visitor = 0,
+  Member = 1,
+  Operator = 2,
+  Custom = 3
+}
+export interface EducationSharedResourceUri {
+  buttonName: string
+  linkUri: string
+}
+export const enum ChatRestrictionLevel {
+  None = 0,
+  Dropped = 1,
+  Disabled = 2
+}
+export const enum MovementAuthority {
+  Client = 0,
+  Server = 1,
+  ServerWithRewind = 2
+}
+export interface ItemState {
+  name: string
+  runtimeId: LI16
+  componentBased: boolean
 }
 export interface NetworkSettingsPacket {
   compressionThreshold: LU16

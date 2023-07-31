@@ -496,14 +496,17 @@ fn is_managed_type(ident: &str) -> bool {
     | "f64" 
     | "bool" 
     | "String"
-    // | "Value"
+    // serde_json
+    | "Value"
     // | "Vec"
     // Custom Types
     | "LittleString"
     | "LU16"
     | "LI16"
+    | "LI32"
     | "LF32"
     | "LU64"
+    | "LI64"
     | "VarInt"
     | "VarLong"
     | "ZigZag"

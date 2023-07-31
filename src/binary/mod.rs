@@ -15,6 +15,7 @@ pub mod prelude {
   // when serializing and deserializing.
   pub type LF32 = f64;
   pub type LU64 = napi::bindgen_prelude::BigInt;
+  pub type LI64 = napi::bindgen_prelude::BigInt;
 
   // Some weird support bullshit mojang has some strings that are
   // not sized with varint for some reason.
@@ -509,6 +510,51 @@ impl BinaryStream {
     self.cursor += 4;
 
     Ok(i32::from_le_bytes(bytes))
+  }
+}
+
+// read/write LI64 with Result and NapiError
+impl BinaryStream {
+  pub fn write_li64(&mut self, value: LI64) -> Result<()> {
+    // Bug in napi-rs bigints will not read as negative so we have to read it as unsigned
+    // and apply the sign based of the sign boolean in the tuple
+    let converted = value.get_u64();
+    let value = match converted.0 {
+      true => -(converted.1 as i64),
+      false => converted.1 as i64,
+    };    
+
+    self.data.extend_from_slice(&value.to_le_bytes());
+
+    Ok(())
+  }
+  pub fn read_li64(&mut self) -> Result<ZigZong> {
+    // Check if the cursor is out of bounds.
+    if self.cursor + 8 > self.data.len() {
+      return Err(Error::new(
+          GenericFailure,
+          "Cursor out of bounds at read_li64",
+      ));
+    }
+
+    let mut bytes = [0; 8];
+    bytes.copy_from_slice(&self.data[self.cursor..self.cursor + 8]);
+    self.cursor += 8;
+
+    let value = i64::from_le_bytes(bytes);
+    let signed = value < 0;
+
+    let value = match signed {
+      true => (-value) as u64,
+      false => value as u64,
+    };
+    
+    let value = napi::bindgen_prelude::BigInt {
+      sign_bit: signed,
+      words: vec![value],
+    };
+
+    Ok(value)
   }
 }
 

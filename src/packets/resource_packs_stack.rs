@@ -1,5 +1,8 @@
 use protocol_derive::packet;
-use crate::packets::prelude::*;
+use crate::packets::{
+  prelude::*,
+  types::*
+};
 use crate::binary::prelude::*;
 
 #[packet(0x07)]
@@ -17,10 +20,4 @@ pub struct PackIdVersion {
   pub uuid: String,
   pub version: String,
   pub name: String,
-}
-
-#[packet]
-pub struct Experiment {
-  pub name: String,
-  pub enabled: bool,
 }
