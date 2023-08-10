@@ -145,6 +145,11 @@ pub fn packet(args: TokenStream, input: TokenStream) -> TokenStream {
         }
       
         fn deserialize(stream: &mut crate::binary::BinaryStream) -> napi::bindgen_prelude::Result<Self> {
+          // Sub objects get mad because stream is already a borrowed mutable so moving a mutable reference
+          // to an internal variable silences it. I assume it is borrowing the pointer which points to the
+          // original pointer.
+          let mut stream = stream;
+          
           #deserialize
         }
       }
@@ -212,6 +217,7 @@ fn object_conversion_gen(fields: &Vec<PacketField>, from: bool) -> TokenStream2 
 fn conversion_actions_gen(field_name: Ident, field_type: Type, from: bool) -> TokenStream2 {
   let field_type_string = quote!(#field_type).to_string();
   let field_name_camel = field_name.to_string().from_case(Case::Snake).to_case(Case::Camel);
+  let is_nbt = field_type_string == "NBT";
 
   let match_arms = quote! {
     Ok(value) => value,
@@ -258,7 +264,7 @@ fn conversion_actions_gen(field_name: Ident, field_type: Type, from: bool) -> To
       }
 
       // Handles everything that isn't a Vec
-      let object_accessor = match is_managed_type(&field_type_string) {
+      let object_accessor = match is_managed_type(&field_type_string) || is_nbt {
         true => quote!(data.get_named_property(#field_name_camel)),
         false => quote!(#field_type::from_object(data.get_named_property(#field_name_camel)?))
       };
@@ -295,7 +301,7 @@ fn conversion_actions_gen(field_name: Ident, field_type: Type, from: bool) -> To
       }
 
       // Handles everything that isn't a Vec
-      let object_accessor = match is_managed_type(&field_type_string) {
+      let object_accessor = match is_managed_type(&field_type_string) || is_nbt {
         true => quote!(self.#field_name.to_owned()),
         false => quote!(self.#field_name.to_object(env)?)
       };
@@ -511,6 +517,7 @@ fn is_managed_type(ident: &str) -> bool {
     | "VarLong"
     | "ZigZag"
     | "ZigZong" 
+    | "UUID"
       => true,
     _ => false
   }

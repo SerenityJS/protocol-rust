@@ -10,6 +10,16 @@ export type LI64 = bigint;
 export type LF32 = number;
 export type LittleString = string;
 export type LU64 = bigint;
+export type UUID = string;
+
+/**
+ * This type internally is used very weirdly. When deserializing it will be the NBT in object format.
+ * All metadata is stripped. When serializing it will expect metadata to be present. Use the exported NBT
+ * namespace to easily create NBT objects.
+ * 
+ * This package does not export extensive NBT types. It is recommended to extend the NBT type with your own.
+ */
+export type NBT = Record<string, any>;
 /* tslint:disable */
 /* eslint-disable */
 
@@ -151,7 +161,7 @@ export interface StartGamePacket {
   limitedWorldWidth: LI32
   limitedWorldLength: LI32
   newNether: boolean
-  eduResourceUri: EducationSharedResourceURI
+  eduResourceUri: EducationSharedResource
   experimentalGameplayOverride: boolean
   chatRestrictionLevel: ChatRestrictionLevel
   disablePlayerInteractions: boolean
@@ -164,11 +174,14 @@ export interface StartGamePacket {
   serverAuthoritiveBlockBreaking: boolean
   currentTick: LI64
   enchantmentSeed: ZigZag
+  blockProperties: Array<BlockProperty>
   itemStates: Array<ItemState>
   multiplayerCorrelationId: string
   serverAuthoritativeInventory: boolean
   engine: string
+  propertyData: NBT
   blockPalletteChecksum: LU64
+  worldTemplateId: UUID
   clientSideGeneration: boolean
   blockNetworkIdsAreHashes: boolean
   serverControlledSound: boolean
@@ -209,7 +222,7 @@ export const enum PermissionLevel {
   Operator = 2,
   Custom = 3
 }
-export interface EducationSharedResourceUri {
+export interface EducationSharedResource {
   buttonName: string
   linkUri: string
 }
@@ -222,6 +235,10 @@ export const enum MovementAuthority {
   Client = 0,
   Server = 1,
   ServerWithRewind = 2
+}
+export interface BlockProperty {
+  name: string
+  state: NBT
 }
 export interface ItemState {
   name: string

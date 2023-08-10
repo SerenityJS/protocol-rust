@@ -38,6 +38,16 @@ export type LI64 = bigint;
 export type LF32 = number;
 export type LittleString = string;
 export type LU64 = bigint;
+export type UUID = string;
+
+/**
+ * This type internally is used very weirdly. When deserializing it will be the NBT in object format.
+ * All metadata is stripped. When serializing it will expect metadata to be present. Use the exported NBT
+ * namespace to easily create NBT objects.
+ * 
+ * This package does not export extensive NBT types. It is recommended to extend the NBT type with your own.
+ */
+export type NBT = Record<string, any>;
 `; 
 inject(injection, 0);
 

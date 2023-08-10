@@ -1,5 +1,6 @@
 #![allow(dead_code, unused_variables)]
 use napi::{Result, Error, Status::GenericFailure};
+use uuid::Uuid;
 
 pub mod prelude {
   pub type VarInt = u32;
@@ -20,6 +21,8 @@ pub mod prelude {
   // Some weird support bullshit mojang has some strings that are
   // not sized with varint for some reason.
   pub type LittleString = String;
+
+  pub type UUID = String;
 }
 
 use prelude::*;
@@ -348,6 +351,62 @@ impl BinaryStream {
     Ok(value)
   }
 }
+
+// Read/Write UUID with Result and NapiError
+impl BinaryStream {
+  pub fn write_uuid(&mut self, value: UUID) -> Result<()> {
+    // if empty string then write 16 0 bytes
+    if value == "" {
+      self.data.extend_from_slice(&[0u8; 16]);
+      return Ok(());
+    }
+
+    let uid = match Uuid::parse_str(&value) {
+      Ok(uuid) => uuid,
+      Err(_) => return Err(Error::new(
+        GenericFailure,
+        "Invalid UUID at write_uuid",
+      )),
+    };
+
+    // no need to verify it tbh
+    // if uid.get_version() != Some(uuid::Version::Random) {
+    //   return Err(Error::new(
+    //     GenericFailure,
+    //     "Invalid uuid not v4 at write_uuid",
+    //   ));
+    // }
+
+    self.data.extend_from_slice(uid.as_bytes());
+
+    Ok(())
+  }
+
+  pub fn read_uuid(&mut self) -> Result<UUID> {
+    let mut bytes = [0u8; 16];
+
+    // Check if the cursor is out of bounds.
+    if self.cursor + 16 > self.data.len() {
+      return Err(Error::new(
+          GenericFailure,
+          "Cursor out of bounds at read_uuid",
+      ));
+    }
+
+    bytes.copy_from_slice(&self.data[self.cursor..self.cursor + 16]);
+
+    self.cursor += 16;
+ 
+    // if all bytes are 0 then return empty string
+    if bytes.iter().all(|&x| x == 0) {
+      return Ok(String::new());
+    }
+
+    // No validation occuring here could be bad...?  
+    Ok(Uuid::from_bytes(bytes).to_string())
+  }
+}
+
 
 //Read/Write LittleString with Result and NapiError
 impl BinaryStream {

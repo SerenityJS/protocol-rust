@@ -1,6 +1,7 @@
 use protocol_derive::packet;
 use napi::bindgen_prelude::*;
 use crate::binary::prelude::*;
+use crate::nbt::NBT;
 use crate::packets::{
   prelude::*,
   types::*
@@ -63,7 +64,7 @@ pub struct StartGamePacket {
   pub limited_world_width: LI32,
   pub limited_world_length: LI32,
   pub new_nether: bool,
-  pub edu_resource_uri: EducationSharedResourceURI,
+  pub edu_resource_uri: EducationSharedResource,
   pub experimental_gameplay_override: bool,
   #[napi(ts_type = "ChatRestrictionLevel")]
   pub chat_restriction_level: u8,
@@ -78,17 +79,14 @@ pub struct StartGamePacket {
   pub server_authoritive_block_breaking: bool,
   pub current_tick: LI64,
   pub enchantment_seed: ZigZag,
-  // TODO - nbt
-  // pub block_properties
+  #[VarInt] pub block_properties: Vec<BlockProperty>,
   #[VarInt] pub item_states: Vec<ItemState>,
   pub multiplayer_correlation_id: String,
   pub server_authoritative_inventory: bool,
   pub engine: String,
-  // TODO - nbt
-  // pub property_data
+  pub property_data: NBT,
   pub block_pallette_checksum: LU64,
-  // TODO - uuid
-  // pub world_template_id: uuid
+  pub world_template_id: UUID,
   pub client_side_generation: bool,
   pub block_network_ids_are_hashes: bool,
   pub server_controlled_sound: bool
@@ -211,7 +209,7 @@ pub enum PermissionLevel {
 }
 
 #[packet]
-pub struct EducationSharedResourceURI {
+pub struct EducationSharedResource {
   pub button_name: String,
   pub link_uri: String,
 }
@@ -231,8 +229,15 @@ pub enum MovementAuthority {
 }
 
 #[packet]
+pub struct BlockProperty {
+  pub name: String,
+  pub state: NBT,
+}
+
+#[packet]
 pub struct ItemState {
   pub name: String,
   pub runtime_id: LI16,
   pub component_based: bool,
 }
+
