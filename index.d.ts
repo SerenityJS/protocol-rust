@@ -127,6 +127,7 @@ export interface StartGamePacket {
   achievementsDisabled: boolean
   editorWorld: boolean
   createdInEditor: boolean
+  exportedFromEditor: boolean
   dayCycleStopTime: ZigZag
   eduOffer: ZigZag
   eduFeaturesEnabled: boolean

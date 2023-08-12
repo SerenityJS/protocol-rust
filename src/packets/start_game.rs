@@ -29,6 +29,7 @@ pub struct StartGamePacket {
   pub achievements_disabled: bool,
   pub editor_world: bool,
   pub created_in_editor: bool,
+  pub exported_from_editor: bool,
   pub day_cycle_stop_time: ZigZag,
   pub edu_offer: ZigZag,
   pub edu_features_enabled: bool,

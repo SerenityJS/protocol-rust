@@ -83,6 +83,9 @@ impl PacketField {
   }
 }
 
+// use std::fs::OpenOptions;
+// use std::io::Write;
+
 #[proc_macro_attribute]
 pub fn packet(args: TokenStream, input: TokenStream) -> TokenStream {
   let ast = parse_macro_input!(input as DeriveInput);
@@ -182,6 +185,20 @@ pub fn packet(args: TokenStream, input: TokenStream) -> TokenStream {
       }
     }
   };
+
+  // Export string output to a file for debugging
+  // let mut file = File::create("output.txt").unwrap();
+  // file.write_all(gen.to_string().as_bytes()).unwrap();
+  // println!("{}", "Written to output.txt");
+
+  // Append output to a file for debugging
+  // let mut file = OpenOptions::new()
+  //   .append(true)
+  //   .open("output.txt")
+  //   .unwrap();
+
+  // file.write_all(gen.to_string().as_bytes()).unwrap();
+  // println!("{}", "Written to output.txt");
 
   // println!("{}", gen.to_string());
 
