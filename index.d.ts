@@ -367,6 +367,18 @@ export const enum SimulationType {
   Test = 2,
   Invalid = 3
 }
+export interface NpcDialoguePacket {
+  entityId: LU64
+  action: DialogueAction
+  dialogue: string
+  screenName: string
+  npcName: string
+  actionJson: string
+}
+export const enum DialogueAction {
+  Open = 0,
+  Close = 1
+}
 export const enum Packet {
   Login = 1,
   PlayStatus = 2,
@@ -393,7 +405,8 @@ export const enum Packet {
   SyncEntityProperty = 165,
   AddVolumeEntity = 166,
   RemoveVolumeEntity = 167,
-  SimulationType = 168
+  SimulationType = 168,
+  NpcDialogue = 169
 }
 
 /**
@@ -426,6 +439,7 @@ export interface PacketEnumToPacketInjection {
   [Packet.AddVolumeEntity]: AddVolumeEntityPacket;
   [Packet.RemoveVolumeEntity]: RemoveVolumeEntityPacket;
   [Packet.SimulationType]: SimulationTypePacket;
+  [Packet.NpcDialogue]: NpcDialoguePacket;
 }
 
 // Updated by build.js

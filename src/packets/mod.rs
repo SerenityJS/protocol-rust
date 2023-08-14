@@ -31,6 +31,7 @@ mod sync_entity_property;
 mod add_volume_entity;
 mod remove_volume_entity;
 mod simulation_type;
+mod npc_dialogue;
 
 use protocol_derive::packet_enum;
 use napi::bindgen_prelude::*;
@@ -72,6 +73,7 @@ pub enum Packet {
   AddVolumeEntity = 0xa6,
   RemoveVolumeEntity = 0xa7,
   SimulationType = 0xa8,
+  NpcDialogue = 0xa9,
 }
 
 // These must be implemented on packets so the enum serializer can work
