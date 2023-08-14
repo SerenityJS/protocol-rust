@@ -141,6 +141,9 @@ export const enum TextType {
   Json = 10,
   JsonAnnouncement = 11
 }
+export interface SetTimePacket {
+  time: ZigZag
+}
 export interface StartGamePacket {
   entityId: ZigZong
   runtimeEntityId: VarLong
@@ -453,6 +456,7 @@ export const enum Packet {
   ResourcePacksStack = 7,
   ResourcePackClientResponse = 8,
   Text = 9,
+  SetTime = 10,
   StartGame = 11,
   NetworkSettings = 143,
   RequestNetworkSettings = 193,
@@ -492,6 +496,7 @@ export interface PacketEnumToPacketInjection {
   [Packet.ResourcePacksStack]: ResourcePacksStackPacket;
   [Packet.ResourcePackClientResponse]: ResourcePackClientResponsePacket;
   [Packet.Text]: TextPacket;
+  [Packet.SetTime]: SetTimePacket;
   [Packet.StartGame]: StartGamePacket;
   [Packet.NetworkSettings]: NetworkSettingsPacket;
   [Packet.RequestNetworkSettings]: RequestNetworkSettingsPacket;
