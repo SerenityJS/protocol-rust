@@ -389,6 +389,22 @@ export interface MoveEntityPacket {
   position: Vec3F
   rotation: Rotation
 }
+export interface MovePlayerPacket {
+  runtimeId: VarInt
+  position: Vec3F
+  pitch: LF32
+  yaw: LF32
+  headYaw: LF32
+  mode: MovePlayerMode
+  onGround: boolean
+  ridingEntityRuntimeId: VarInt
+}
+export const enum MovePlayerMode {
+  Normal = 0,
+  Reset = 1,
+  Teleport = 2,
+  Rotation = 3
+}
 export interface NetworkSettingsPacket {
   compressionThreshold: LU16
   compressionAlgorithm: CompressionAlgorithm
@@ -602,6 +618,7 @@ export const enum Packet {
   AddItemEntity = 15,
   TakeItemEntity = 17,
   MoveEntity = 18,
+  MovePlayer = 19,
   NetworkSettings = 143,
   RequestNetworkSettings = 193,
   RequestChunkRadius = 69,
@@ -652,6 +669,7 @@ export interface PacketEnumToPacketInjection {
   [Packet.AddItemEntity]: AddItemEntityPacket;
   [Packet.TakeItemEntity]: TakeItemEntityPacket;
   [Packet.MoveEntity]: MoveEntityPacket;
+  [Packet.MovePlayer]: MovePlayerPacket;
   [Packet.NetworkSettings]: NetworkSettingsPacket;
   [Packet.RequestNetworkSettings]: RequestNetworkSettingsPacket;
   [Packet.RequestChunkRadius]: RequestChunkRadiusPacket;

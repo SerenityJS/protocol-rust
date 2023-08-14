@@ -1,5 +1,3 @@
-// PMK744
-
 use protocol_derive::packet;
 use crate::binary::prelude::*;
 
