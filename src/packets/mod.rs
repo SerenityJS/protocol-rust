@@ -37,6 +37,7 @@ mod mob_armor_equipment;
 mod interact;
 mod block_pick_request;
 mod entity_pick_request;
+mod player_action;
 mod network_settings;
 mod request_network_settings;
 
@@ -117,6 +118,7 @@ pub enum Packet {
   Interact = 0x21,
   BlockPickRequest = 0x22,
   EntityPickRequest = 0x23,
+  PlayerAction = 0x24,
   NetworkSettings = 0x8f,
   RequestNetworkSettings = 0xc1,
   

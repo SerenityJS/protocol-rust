@@ -567,6 +567,13 @@ export interface EntityPickRequestPacket {
   selectedSlot: number
   withData: boolean
 }
+export interface PlayerActionPacket {
+  runtimeId: VarLong
+  action: ZigZag
+  position: BlockCoordinates
+  resultPosition: BlockCoordinates
+  face: ZigZag
+}
 export interface NetworkSettingsPacket {
   compressionThreshold: LU16
   compressionAlgorithm: CompressionAlgorithm
@@ -801,6 +808,7 @@ export const enum Packet {
   Interact = 33,
   BlockPickRequest = 34,
   EntityPickRequest = 35,
+  PlayerAction = 36,
   NetworkSettings = 143,
   RequestNetworkSettings = 193,
   RequestChunkRadius = 69,
@@ -869,6 +877,7 @@ export interface PacketEnumToPacketInjection {
   [Packet.Interact]: InteractPacket;
   [Packet.BlockPickRequest]: BlockPickRequestPacket;
   [Packet.EntityPickRequest]: EntityPickRequestPacket;
+  [Packet.PlayerAction]: PlayerActionPacket;
   [Packet.NetworkSettings]: NetworkSettingsPacket;
   [Packet.RequestNetworkSettings]: RequestNetworkSettingsPacket;
   [Packet.RequestChunkRadius]: RequestChunkRadiusPacket;
