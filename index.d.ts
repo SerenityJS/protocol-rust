@@ -322,6 +322,12 @@ export const enum ShakeAction {
 export interface PlayerFogPacket {
   stack: Array<string>
 }
+export interface CorrectPlayerMovePredictionPacket {
+  position: Vec3F
+  delta: Vec3F
+  onGround: boolean
+  tick: VarLong
+}
 export const enum Packet {
   Login = 1,
   PlayStatus = 2,
@@ -341,7 +347,8 @@ export const enum Packet {
   MotionPredictionHints = 157,
   AnimateEntity = 158,
   CameraShake = 159,
-  PlayerFog = 160
+  PlayerFog = 160,
+  CorrectPlayerMovePrediction = 161
 }
 
 /**
@@ -367,6 +374,7 @@ export interface PacketEnumToPacketInjection {
   [Packet.AnimateEntity]: AnimateEntityPacket;
   [Packet.CameraShake]: CameraShakePacket;
   [Packet.PlayerFog]: PlayerFogPacket;
+  [Packet.CorrectPlayerMovePrediction]: CorrectPlayerMovePredictionPacket;
 }
 
 // Updated by build.js

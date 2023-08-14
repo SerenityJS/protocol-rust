@@ -23,6 +23,7 @@ mod motion_prediction_hints;
 mod animate_entity;
 mod camera_shake;
 mod player_fog;
+mod correct_player_move_prediction;
 
 use protocol_derive::packet_enum;
 use napi::bindgen_prelude::*;
@@ -56,6 +57,7 @@ pub enum Packet {
   AnimateEntity = 0x9e,
   CameraShake = 0x9f,
   PlayerFog = 0xa0,
+  CorrectPlayerMovePrediction = 0xa1,
 }
 
 // These must be implemented on packets so the enum serializer can work
