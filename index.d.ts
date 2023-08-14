@@ -508,6 +508,13 @@ export interface MobEquipmentPacket {
   selectedSlot: number
   windowId: WindowId
 }
+export interface MobArmorEquipmentPacket {
+  runtimeId: VarLong
+  helmet: ItemStack
+  chestplate: ItemStack
+  leggings: ItemStack
+  boots: ItemStack
+}
 export interface NetworkSettingsPacket {
   compressionThreshold: LU16
   compressionAlgorithm: CompressionAlgorithm
@@ -738,6 +745,7 @@ export const enum Packet {
   UpdateAttributes = 29,
   InventoryTransaction = 30,
   MobEquipment = 31,
+  MobArmorEquipment = 32,
   NetworkSettings = 143,
   RequestNetworkSettings = 193,
   RequestChunkRadius = 69,
@@ -802,6 +810,7 @@ export interface PacketEnumToPacketInjection {
   [Packet.UpdateAttributes]: UpdateAttributesPacket;
   [Packet.InventoryTransaction]: InventoryTransactionPacket;
   [Packet.MobEquipment]: MobEquipmentPacket;
+  [Packet.MobArmorEquipment]: MobArmorEquipmentPacket;
   [Packet.NetworkSettings]: NetworkSettingsPacket;
   [Packet.RequestNetworkSettings]: RequestNetworkSettingsPacket;
   [Packet.RequestChunkRadius]: RequestChunkRadiusPacket;
