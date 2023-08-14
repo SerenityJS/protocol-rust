@@ -11,6 +11,7 @@ mod disconnect;
 mod resource_packs_info;
 mod resource_packs_stack;
 mod resource_pack_client_response;
+mod text;
 mod start_game;
 mod network_settings;
 mod request_network_settings;
@@ -58,6 +59,7 @@ pub enum Packet {
   ResourcePacksInfo = 0x06,
   ResourcePacksStack = 0x07,
   ResourcePackClientResponse = 0x08,
+  Text = 0x09,
   StartGame = 0x0b,
   NetworkSettings = 0x8f,
   RequestNetworkSettings = 0xc1,

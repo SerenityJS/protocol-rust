@@ -121,6 +121,26 @@ export const enum ResourceResponseStatus {
   HaveAllPacks = 3,
   Completed = 4
 }
+export interface TextPacket {
+  textType: TextType
+  needsTranslation: boolean
+  xuid: string
+  platformChatId: string
+}
+export const enum TextType {
+  Raw = 0,
+  Chat = 1,
+  Translation = 2,
+  Popup = 3,
+  JukeboxPopup = 4,
+  Tip = 5,
+  System = 6,
+  Whisper = 7,
+  Announcement = 8,
+  JsonWhisper = 9,
+  Json = 10,
+  JsonAnnouncement = 11
+}
 export interface StartGamePacket {
   entityId: ZigZong
   runtimeEntityId: VarLong
@@ -432,6 +452,7 @@ export const enum Packet {
   ResourcePacksInfo = 6,
   ResourcePacksStack = 7,
   ResourcePackClientResponse = 8,
+  Text = 9,
   StartGame = 11,
   NetworkSettings = 143,
   RequestNetworkSettings = 193,
@@ -470,6 +491,7 @@ export interface PacketEnumToPacketInjection {
   [Packet.ResourcePacksInfo]: ResourcePacksInfoPacket;
   [Packet.ResourcePacksStack]: ResourcePacksStackPacket;
   [Packet.ResourcePackClientResponse]: ResourcePackClientResponsePacket;
+  [Packet.Text]: TextPacket;
   [Packet.StartGame]: StartGamePacket;
   [Packet.NetworkSettings]: NetworkSettingsPacket;
   [Packet.RequestNetworkSettings]: RequestNetworkSettingsPacket;
