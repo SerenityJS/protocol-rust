@@ -386,6 +386,11 @@ export interface SharedUri {
   buttonText: string
   linkUri: string
 }
+export interface CreatePhotoPacket {
+  entityUniqueId: LI64
+  photoName: string
+  itemName: string
+}
 export const enum Packet {
   Login = 1,
   PlayStatus = 2,
@@ -414,7 +419,8 @@ export const enum Packet {
   RemoveVolumeEntity = 167,
   SimulationType = 168,
   NpcDialogue = 169,
-  EduSharedResourceUri = 170
+  EduSharedResourceUri = 170,
+  CreatePhoto = 171
 }
 
 /**
@@ -449,6 +455,7 @@ export interface PacketEnumToPacketInjection {
   [Packet.SimulationType]: SimulationTypePacket;
   [Packet.NpcDialogue]: NpcDialoguePacket;
   [Packet.EduSharedResourceUri]: EduSharedResourceUriPacket;
+  [Packet.CreatePhoto]: CreatePhotoPacket;
 }
 
 // Updated by build.js

@@ -33,6 +33,7 @@ mod remove_volume_entity;
 mod simulation_type;
 mod npc_dialogue;
 mod edu_shared_resource_uri;
+mod create_photo;
 
 use protocol_derive::packet_enum;
 use napi::bindgen_prelude::*;
@@ -76,6 +77,7 @@ pub enum Packet {
   SimulationType = 0xa8,
   NpcDialogue = 0xa9,
   EduSharedResourceUri = 0xaa,
+  CreatePhoto = 0xab,
 }
 
 // These must be implemented on packets so the enum serializer can work
