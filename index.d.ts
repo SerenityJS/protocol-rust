@@ -38,6 +38,35 @@ export interface Experiment {
   name: string
   enabled: boolean
 }
+export interface EntityAttribute {
+  name: string
+  min: LF32
+  max: LF32
+  value: LF32
+}
+export interface MetadataDictionary {
+  key: VarInt
+  keyType: VarInt
+}
+export interface EntityInts {
+  index: VarInt
+  value: ZigZag
+}
+export interface EntityFloats {
+  index: VarInt
+  value: LF32
+}
+export interface EntityProperties {
+  ints: Array<EntityInts>
+  floats: Array<EntityFloats>
+}
+export interface Link {
+  riddenEntityId: ZigZong
+  riderEntityId: ZigZong
+  linkType: number
+  immediate: boolean
+  riderInitiated: boolean
+}
 export interface LoginPacket {
   protocolVersion: number
   tokens: LoginTokens
@@ -305,22 +334,6 @@ export interface AddPlayerPacket {
 export interface Item {
   networkId: ZigZag
 }
-export interface MetadataDictionary {
-  key: VarInt
-  keyType: VarInt
-}
-export interface EntityProperties {
-  ints: Array<EntityInts>
-  floats: Array<EntityFloats>
-}
-export interface EntityInts {
-  index: VarInt
-  value: ZigZag
-}
-export interface EntityFloats {
-  index: VarInt
-  value: LF32
-}
 export const enum CommandPermissionLevel {
   Normal = 0,
   Operator = 1,
@@ -333,13 +346,6 @@ export interface AbilityLayers {
   abilityType: LU16
   flySpeed: LF32
   walkSpeed: LF32
-}
-export interface Link {
-  riddenEntityId: ZigZong
-  riderEntityId: ZigZong
-  linkType: number
-  immediate: boolean
-  riderInitiated: boolean
 }
 export interface AddEntityPacket {
   uniqueId: ZigZong
@@ -355,12 +361,6 @@ export interface AddEntityPacket {
   metadata: Array<MetadataDictionary>
   properties: EntityProperties
   links: Array<Link>
-}
-export interface EntityAttribute {
-  name: string
-  min: LF32
-  max: LF32
-  value: LF32
 }
 export interface RemoveEntityPacket {
   uniqueId: ZigZong

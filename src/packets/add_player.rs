@@ -40,31 +40,6 @@ pub struct Item {
   pub network_id: ZigZag,
 }
 
-#[packet]
-pub struct MetadataDictionary {
-  pub key: VarInt,
-  pub key_type: VarInt,
-  // TODO: pub value
-}
-
-#[packet]
-pub struct EntityProperties {
-  #[VarInt] pub ints: Vec<EntityInts>,
-  #[VarInt] pub floats: Vec<EntityFloats>,
-}
-
-#[packet]
-pub struct EntityInts {
-  pub index: VarInt,
-  pub value: ZigZag,
-}
-
-#[packet]
-pub struct EntityFloats {
-  pub index: VarInt,
-  pub value: LF32,
-}
-
 #[napi]
 pub enum CommandPermissionLevel {
   Normal,
@@ -82,13 +57,4 @@ pub struct AbilityLayers {
   // TODO: pub enabled: AbilitySet,
   pub fly_speed: LF32,
   pub walk_speed: LF32,
-}
-
-#[packet]
-pub struct Link {
-  pub ridden_entity_id: ZigZong,
-  pub rider_entity_id: ZigZong,
-  pub link_type: u8,
-  pub immediate: bool,
-  pub rider_initiated: bool,
 }
