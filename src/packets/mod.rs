@@ -34,6 +34,7 @@ mod simulation_type;
 mod npc_dialogue;
 mod edu_shared_resource_uri;
 mod create_photo;
+mod update_subchunk_blocks;
 
 use protocol_derive::packet_enum;
 use napi::bindgen_prelude::*;
@@ -78,6 +79,7 @@ pub enum Packet {
   NpcDialogue = 0xa9,
   EduSharedResourceUri = 0xaa,
   CreatePhoto = 0xab,
+  UpdateSubchunkBlocks = 0xac,
 }
 
 // These must be implemented on packets so the enum serializer can work

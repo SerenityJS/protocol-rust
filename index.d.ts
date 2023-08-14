@@ -391,6 +391,24 @@ export interface CreatePhotoPacket {
   photoName: string
   itemName: string
 }
+export interface UpdateSubchunkBlocksPacket {
+  x: ZigZag
+  y: ZigZag
+  z: ZigZag
+  blocks: Array<BlockUpdate>
+}
+export interface BlockUpdate {
+  postion: BlockCoordinates
+  runtimeId: VarInt
+  flags: VarInt
+  entityUniqueId: ZigZong
+  transitionType: SubChunkTransitionType
+}
+export const enum SubChunkTransitionType {
+  Entity = 0,
+  Create = 1,
+  Destroy = 2
+}
 export const enum Packet {
   Login = 1,
   PlayStatus = 2,
@@ -420,7 +438,8 @@ export const enum Packet {
   SimulationType = 168,
   NpcDialogue = 169,
   EduSharedResourceUri = 170,
-  CreatePhoto = 171
+  CreatePhoto = 171,
+  UpdateSubchunkBlocks = 172
 }
 
 /**
@@ -456,6 +475,7 @@ export interface PacketEnumToPacketInjection {
   [Packet.NpcDialogue]: NpcDialoguePacket;
   [Packet.EduSharedResourceUri]: EduSharedResourceUriPacket;
   [Packet.CreatePhoto]: CreatePhotoPacket;
+  [Packet.UpdateSubchunkBlocks]: UpdateSubchunkBlocksPacket;
 }
 
 // Updated by build.js
