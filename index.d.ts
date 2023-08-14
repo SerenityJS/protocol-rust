@@ -371,6 +371,15 @@ export interface EntityAttribute {
 export interface RemoveEntityPacket {
   uniqueId: ZigZong
 }
+export interface AddItemEntityPacket {
+  uniqueId: ZigZong
+  runtimeId: VarLong
+  item: Item
+  position: Vec3F
+  velocity: Vec3F
+  metadata: Array<MetadataDictionary>
+  isFromFishing: boolean
+}
 export interface NetworkSettingsPacket {
   compressionThreshold: LU16
   compressionAlgorithm: CompressionAlgorithm
@@ -552,6 +561,7 @@ export const enum Packet {
   AddPlayer = 12,
   AddEntity = 13,
   RemoveEntity = 14,
+  AddItemEntity = 15,
   NetworkSettings = 143,
   RequestNetworkSettings = 193,
   UpdatePlayerGameType = 151,
@@ -595,6 +605,7 @@ export interface PacketEnumToPacketInjection {
   [Packet.AddPlayer]: AddPlayerPacket;
   [Packet.AddEntity]: AddEntityPacket;
   [Packet.RemoveEntity]: RemoveEntityPacket;
+  [Packet.AddItemEntity]: AddItemEntityPacket;
   [Packet.NetworkSettings]: NetworkSettingsPacket;
   [Packet.RequestNetworkSettings]: RequestNetworkSettingsPacket;
   [Packet.UpdatePlayerGameType]: UpdatePlayerGameTypePacket;
