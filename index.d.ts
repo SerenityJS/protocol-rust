@@ -67,6 +67,11 @@ export interface Link {
   immediate: boolean
   riderInitiated: boolean
 }
+export interface Rotation {
+  yaw: LF32
+  pitch: LF32
+  headYaw: LF32
+}
 export interface LoginPacket {
   protocolVersion: number
   tokens: LoginTokens
@@ -378,6 +383,12 @@ export interface TakeItemEntityPacket {
   runtimeId: VarLong
   target: VarInt
 }
+export interface MoveEntityPacket {
+  runtimeId: VarLong
+  flags: number
+  position: Vec3F
+  rotation: Rotation
+}
 export interface NetworkSettingsPacket {
   compressionThreshold: LU16
   compressionAlgorithm: CompressionAlgorithm
@@ -590,6 +601,7 @@ export const enum Packet {
   RemoveEntity = 14,
   AddItemEntity = 15,
   TakeItemEntity = 17,
+  MoveEntity = 18,
   NetworkSettings = 143,
   RequestNetworkSettings = 193,
   RequestChunkRadius = 69,
@@ -639,6 +651,7 @@ export interface PacketEnumToPacketInjection {
   [Packet.RemoveEntity]: RemoveEntityPacket;
   [Packet.AddItemEntity]: AddItemEntityPacket;
   [Packet.TakeItemEntity]: TakeItemEntityPacket;
+  [Packet.MoveEntity]: MoveEntityPacket;
   [Packet.NetworkSettings]: NetworkSettingsPacket;
   [Packet.RequestNetworkSettings]: RequestNetworkSettingsPacket;
   [Packet.RequestChunkRadius]: RequestChunkRadiusPacket;

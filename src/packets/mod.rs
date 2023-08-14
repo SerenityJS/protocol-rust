@@ -19,6 +19,7 @@ mod add_entity;
 mod remove_entity;
 mod add_item_entity;
 mod take_item_entity;
+mod move_entity;
 mod network_settings;
 mod request_network_settings;
 
@@ -80,6 +81,7 @@ pub enum Packet {
   RemoveEntity = 0x0e,
   AddItemEntity = 0x0f,
   TakeItemEntity = 0x11,
+  MoveEntity = 0x12,
   NetworkSettings = 0x8f,
   RequestNetworkSettings = 0xc1,
   
