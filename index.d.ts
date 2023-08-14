@@ -413,6 +413,13 @@ export interface UpdateBlockPacket {
   runtimeId: VarInt
   layer: VarInt
 }
+export interface AddPaintingPacket {
+  entityId: ZigZong
+  runtimeId: VarLong
+  position: Vec3F
+  direction: ZigZag
+  title: string
+}
 export interface NetworkSettingsPacket {
   compressionThreshold: LU16
   compressionAlgorithm: CompressionAlgorithm
@@ -629,6 +636,7 @@ export const enum Packet {
   MovePlayer = 19,
   RiderJump = 20,
   UpdateBlock = 21,
+  AddPainting = 22,
   NetworkSettings = 143,
   RequestNetworkSettings = 193,
   RequestChunkRadius = 69,
@@ -682,6 +690,7 @@ export interface PacketEnumToPacketInjection {
   [Packet.MovePlayer]: MovePlayerPacket;
   [Packet.RiderJump]: RiderJumpPacket;
   [Packet.UpdateBlock]: UpdateBlockPacket;
+  [Packet.AddPainting]: AddPaintingPacket;
   [Packet.NetworkSettings]: NetworkSettingsPacket;
   [Packet.RequestNetworkSettings]: RequestNetworkSettingsPacket;
   [Packet.RequestChunkRadius]: RequestChunkRadiusPacket;
