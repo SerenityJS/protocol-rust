@@ -328,6 +328,13 @@ export interface CorrectPlayerMovePredictionPacket {
   onGround: boolean
   tick: VarLong
 }
+export interface ItemComponentPacket {
+  entries: Array<ItemComponentList>
+}
+export interface ItemComponentList {
+  name: string
+  nbt: NBT
+}
 export const enum Packet {
   Login = 1,
   PlayStatus = 2,
@@ -348,7 +355,8 @@ export const enum Packet {
   AnimateEntity = 158,
   CameraShake = 159,
   PlayerFog = 160,
-  CorrectPlayerMovePrediction = 161
+  CorrectPlayerMovePrediction = 161,
+  ItemComponent = 162
 }
 
 /**
@@ -375,6 +383,7 @@ export interface PacketEnumToPacketInjection {
   [Packet.CameraShake]: CameraShakePacket;
   [Packet.PlayerFog]: PlayerFogPacket;
   [Packet.CorrectPlayerMovePrediction]: CorrectPlayerMovePredictionPacket;
+  [Packet.ItemComponent]: ItemComponentPacket;
 }
 
 // Updated by build.js
