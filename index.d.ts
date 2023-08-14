@@ -396,6 +396,9 @@ export interface RequestChunkRadiusPacket {
   chunkRadius: ZigZag
   maxRadius: number
 }
+export interface ChunkRadiusUpdatePacket {
+  chunkRadius: ZigZag
+}
 export interface UpdatePlayerGameTypePacket {
   gamemode: GameMode
   playerUniqueId: ZigZong
@@ -568,6 +571,7 @@ export const enum Packet {
   NetworkSettings = 143,
   RequestNetworkSettings = 193,
   RequestChunkRadius = 69,
+  ChunkRadiusUpdate = 70,
   UpdatePlayerGameType = 151,
   EmoteList = 152,
   PositionTrackingDbRequest = 154,
@@ -614,6 +618,7 @@ export interface PacketEnumToPacketInjection {
   [Packet.NetworkSettings]: NetworkSettingsPacket;
   [Packet.RequestNetworkSettings]: RequestNetworkSettingsPacket;
   [Packet.RequestChunkRadius]: RequestChunkRadiusPacket;
+  [Packet.ChunkRadiusUpdate]: ChunkRadiusUpdatePacket;
   [Packet.UpdatePlayerGameType]: UpdatePlayerGameTypePacket;
   [Packet.EmoteList]: EmoteListPacket;
   [Packet.PositionTrackingDbRequest]: PositionTrackingDbRequestPacket;

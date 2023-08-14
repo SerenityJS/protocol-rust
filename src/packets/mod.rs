@@ -23,6 +23,7 @@ mod network_settings;
 mod request_network_settings;
 
 mod request_chunk_radius;
+mod chunk_radius_update;
 
 mod update_player_game_type;
 mod emote_list;
@@ -79,6 +80,7 @@ pub enum Packet {
   RequestNetworkSettings = 0xc1,
   
   RequestChunkRadius = 0x45,
+  ChunkRadiusUpdate = 0x46,
 
   UpdatePlayerGameType = 0x97,
   EmoteList = 0x98,
