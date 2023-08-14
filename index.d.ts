@@ -315,6 +315,13 @@ export interface CameraShakePacket {
   shakeType: number
   action: ShakeAction
 }
+export const enum ShakeAction {
+  Add = 0,
+  Stop = 1
+}
+export interface PlayerFogPacket {
+  stack: Array<string>
+}
 export const enum Packet {
   Login = 1,
   PlayStatus = 2,
@@ -333,7 +340,8 @@ export const enum Packet {
   PacketViolationWarning = 156,
   MotionPredictionHints = 157,
   AnimateEntity = 158,
-  CameraShake = 159
+  CameraShake = 159,
+  PlayerFog = 160
 }
 
 /**
@@ -358,6 +366,7 @@ export interface PacketEnumToPacketInjection {
   [Packet.MotionPredictionHints]: MotionPredictionHintsPacket;
   [Packet.AnimateEntity]: AnimateEntityPacket;
   [Packet.CameraShake]: CameraShakePacket;
+  [Packet.PlayerFog]: PlayerFogPacket;
 }
 
 // Updated by build.js

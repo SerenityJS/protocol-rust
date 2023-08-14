@@ -1,5 +1,6 @@
 use protocol_derive::packet;
 use crate::binary::prelude::*;
+use napi::bindgen_prelude::*;
 
 #[packet(0x9f)]
 pub struct CameraShakePacket {
@@ -10,6 +11,7 @@ pub struct CameraShakePacket {
   pub action: u8,
 }
 
+#[napi]
 pub enum ShakeAction {
   Add,
   Stop,
