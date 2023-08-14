@@ -300,6 +300,15 @@ export interface MotionPredictionHintsPacket {
   velocity: Vec3F
   onGround: boolean
 }
+export interface AnimateEntityPacket {
+  animation: string
+  nextState: string
+  stopCondition: string
+  stopConditionVerion: LI32
+  controller: string
+  blendOutTime: LF32
+  entityRuntimeIds: Array<VarLong>
+}
 export const enum Packet {
   Login = 1,
   PlayStatus = 2,
@@ -316,7 +325,8 @@ export const enum Packet {
   PositionTrackingDbRequest = 154,
   PositionTrackingDbBroadcast = 153,
   PacketViolationWarning = 156,
-  MotionPredictionHints = 157
+  MotionPredictionHints = 157,
+  AnimateEntity = 158
 }
 
 /**
@@ -339,6 +349,7 @@ export interface PacketEnumToPacketInjection {
   [Packet.PositionTrackingDbBroadcast]: PositionTrackingDbBroadcastPacket;
   [Packet.PacketViolationWarning]: PacketViolationWarningPacket;
   [Packet.MotionPredictionHints]: MotionPredictionHintsPacket;
+  [Packet.AnimateEntity]: AnimateEntityPacket;
 }
 
 // Updated by build.js

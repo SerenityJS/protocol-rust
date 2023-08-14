@@ -20,6 +20,7 @@ mod position_tracking_db_request;
 mod position_tracking_db_broadcast;
 mod packet_violation_warning;
 mod motion_prediction_hints;
+mod animate_entity;
 
 use protocol_derive::packet_enum;
 use napi::bindgen_prelude::*;
@@ -50,6 +51,7 @@ pub enum Packet {
   PositionTrackingDbBroadcast = 0x99,
   PacketViolationWarning = 0x9c,
   MotionPredictionHints = 0x9d,
+  AnimateEntity = 0x9e,
 }
 
 // These must be implemented on packets so the enum serializer can work
