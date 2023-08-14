@@ -321,12 +321,6 @@ export interface EntityFloats {
   index: VarInt
   value: LF32
 }
-export const enum PermissionLevel {
-  Visitor = 0,
-  Member = 1,
-  Operator = 2,
-  Custom = 3
-}
 export const enum CommandPermissionLevel {
   Normal = 0,
   Operator = 1,
@@ -397,6 +391,10 @@ export const enum CompressionAlgorithm {
 }
 export interface RequestNetworkSettingsPacket {
   protocolVersion: number
+}
+export interface RequestChunkRadiusPacket {
+  chunkRadius: ZigZag
+  maxRadius: number
 }
 export interface UpdatePlayerGameTypePacket {
   gamemode: GameMode
@@ -569,6 +567,7 @@ export const enum Packet {
   TakeItemEntity = 17,
   NetworkSettings = 143,
   RequestNetworkSettings = 193,
+  RequestChunkRadius = 69,
   UpdatePlayerGameType = 151,
   EmoteList = 152,
   PositionTrackingDbRequest = 154,
@@ -614,6 +613,7 @@ export interface PacketEnumToPacketInjection {
   [Packet.TakeItemEntity]: TakeItemEntityPacket;
   [Packet.NetworkSettings]: NetworkSettingsPacket;
   [Packet.RequestNetworkSettings]: RequestNetworkSettingsPacket;
+  [Packet.RequestChunkRadius]: RequestChunkRadiusPacket;
   [Packet.UpdatePlayerGameType]: UpdatePlayerGameTypePacket;
   [Packet.EmoteList]: EmoteListPacket;
   [Packet.PositionTrackingDbRequest]: PositionTrackingDbRequestPacket;

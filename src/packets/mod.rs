@@ -22,6 +22,8 @@ mod take_item_entity;
 mod network_settings;
 mod request_network_settings;
 
+mod request_chunk_radius;
+
 mod update_player_game_type;
 mod emote_list;
 mod position_tracking_db_request;
@@ -76,6 +78,8 @@ pub enum Packet {
   NetworkSettings = 0x8f,
   RequestNetworkSettings = 0xc1,
   
+  RequestChunkRadius = 0x45,
+
   UpdatePlayerGameType = 0x97,
   EmoteList = 0x98,
   PositionTrackingDbRequest = 0x9a,

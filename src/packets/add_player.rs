@@ -66,14 +66,6 @@ pub struct EntityFloats {
 }
 
 #[napi]
-pub enum PermissionLevel {
-  Visitor,
-  Member,
-  Operator,
-  Custom,
-}
-
-#[napi]
 pub enum CommandPermissionLevel {
   Normal,
   Operator,
