@@ -32,6 +32,7 @@ mod entity_event;
 mod mob_effect;
 mod update_attributes;
 mod inventory_transaction;
+mod mob_equipment;
 mod network_settings;
 mod request_network_settings;
 
@@ -107,6 +108,7 @@ pub enum Packet {
   MobEffect = 0x1c,
   UpdateAttributes = 0x1d,
   InventoryTransaction = 0x1e,
+  MobEquipment = 0x1f,
   NetworkSettings = 0x8f,
   RequestNetworkSettings = 0xc1,
   

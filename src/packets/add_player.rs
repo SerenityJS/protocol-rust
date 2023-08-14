@@ -17,7 +17,7 @@ pub struct AddPlayerPacket {
   pub pitch: LF32,
   pub yaw: LF32,
   pub head_yaw: LF32,
-  pub item: Item,
+  pub item: ItemStack,
   #[napi(ts_type = "GameMode")]
   pub gamemode: ZigZag,
   #[VarInt] pub metadata: Vec<MetadataDictionary>,
@@ -32,12 +32,6 @@ pub struct AddPlayerPacket {
   pub device_id: String,
   // TODO: Added device list...
   pub device_os: LI32,
-}
-
-// TODO: handle network_id fields
-#[packet]
-pub struct Item {
-  pub network_id: ZigZag,
 }
 
 #[napi]

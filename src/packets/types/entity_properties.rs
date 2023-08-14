@@ -1,7 +1,6 @@
 use protocol_derive::packet;
 use crate::binary::prelude::*;
 
-
 #[packet]
 pub struct EntityInts {
   pub index: VarInt,

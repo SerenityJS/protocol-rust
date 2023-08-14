@@ -5,13 +5,11 @@ use crate::packets::{
   types::*
 };
 
-use super::add_player::*;
-
 #[packet(0x0f)]
 pub struct AddItemEntityPacket {
   pub unique_id: ZigZong,
   pub runtime_id: VarLong,
-  pub item: Item,
+  pub item: ItemStack,
   pub position: Vec3f,
   pub velocity: Vec3f,
   #[VarInt] pub metadata: Vec<MetadataDictionary>,

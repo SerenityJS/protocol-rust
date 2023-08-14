@@ -93,6 +93,9 @@ export interface AttributeModifier {
   operand: LI32
   serialize: boolean
 }
+export interface ItemStack {
+  networkId: ZigZag
+}
 export interface LoginPacket {
   protocolVersion: number
   tokens: LoginTokens
@@ -340,7 +343,7 @@ export interface AddPlayerPacket {
   pitch: LF32
   yaw: LF32
   headYaw: LF32
-  item: Item
+  item: ItemStack
   gamemode: GameMode
   metadata: Array<MetadataDictionary>
   properties: EntityProperties
@@ -351,9 +354,6 @@ export interface AddPlayerPacket {
   links: Array<Link>
   deviceId: string
   deviceOs: LI32
-}
-export interface Item {
-  networkId: ZigZag
 }
 export const enum CommandPermissionLevel {
   Normal = 0,
@@ -389,7 +389,7 @@ export interface RemoveEntityPacket {
 export interface AddItemEntityPacket {
   uniqueId: ZigZong
   runtimeId: VarLong
-  item: Item
+  item: ItemStack
   position: Vec3F
   velocity: Vec3F
   metadata: Array<MetadataDictionary>
@@ -500,6 +500,13 @@ export interface UpdateAttributesPacket {
 }
 export interface InventoryTransactionPacket {
   
+}
+export interface MobEquipmentPacket {
+  runtimeId: VarLong
+  item: ItemStack
+  slot: number
+  selectedSlot: number
+  windowId: WindowId
 }
 export interface NetworkSettingsPacket {
   compressionThreshold: LU16
@@ -730,6 +737,7 @@ export const enum Packet {
   MobEffect = 28,
   UpdateAttributes = 29,
   InventoryTransaction = 30,
+  MobEquipment = 31,
   NetworkSettings = 143,
   RequestNetworkSettings = 193,
   RequestChunkRadius = 69,
@@ -793,6 +801,7 @@ export interface PacketEnumToPacketInjection {
   [Packet.MobEffect]: MobEffectPacket;
   [Packet.UpdateAttributes]: UpdateAttributesPacket;
   [Packet.InventoryTransaction]: InventoryTransactionPacket;
+  [Packet.MobEquipment]: MobEquipmentPacket;
   [Packet.NetworkSettings]: NetworkSettingsPacket;
   [Packet.RequestNetworkSettings]: RequestNetworkSettingsPacket;
   [Packet.RequestChunkRadius]: RequestChunkRadiusPacket;
