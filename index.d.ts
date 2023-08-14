@@ -551,6 +551,25 @@ export const enum SubChunkTransitionType {
 export interface PhotoInfoRequestPacket {
   photoId: ZigZong
 }
+export interface CreativeContentPacket {
+  items: Array<CreativeItem>
+}
+export interface CreativeItem {
+  entryId: VarInt
+  item: ItemLegacy
+}
+export interface ItemLegacy {
+  networkId: ZigZag
+  count: LU16
+  metadata: VarInt
+  runtimeId: ZigZag
+  extra: ItemLegacyExtras
+}
+export interface ItemLegacyExtras {
+  hasNbt: LU16
+  canPlaceOn: Array<LittleString>
+  canDestroy: Array<LittleString>
+}
 export const enum Packet {
   Login = 1,
   PlayStatus = 2,
@@ -592,7 +611,8 @@ export const enum Packet {
   EduSharedResourceUri = 170,
   CreatePhoto = 171,
   UpdateSubchunkBlocks = 172,
-  PhotoInfoRequest = 173
+  PhotoInfoRequest = 173,
+  CreativeContent = 145
 }
 
 /**
@@ -640,6 +660,7 @@ export interface PacketEnumToPacketInjection {
   [Packet.CreatePhoto]: CreatePhotoPacket;
   [Packet.UpdateSubchunkBlocks]: UpdateSubchunkBlocksPacket;
   [Packet.PhotoInfoRequest]: PhotoInfoRequestPacket;
+  [Packet.CreativeContent]: CreativeContentPacket;
 }
 
 // Updated by build.js

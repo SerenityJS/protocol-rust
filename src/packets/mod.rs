@@ -48,6 +48,8 @@ mod create_photo;
 mod update_subchunk_blocks;
 mod photo_info_request;
 
+mod creative_content;
+
 use protocol_derive::packet_enum;
 use napi::bindgen_prelude::*;
 use crate::binary::BinaryStream;
@@ -104,6 +106,8 @@ pub enum Packet {
   CreatePhoto = 0xab,
   UpdateSubchunkBlocks = 0xac,
   PhotoInfoRequest = 0xad,
+
+  CreativeContent = 0x91,
 }
 
 // These must be implemented on packets so the enum serializer can work
