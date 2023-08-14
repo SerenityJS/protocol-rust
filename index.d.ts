@@ -268,6 +268,15 @@ export interface EmoteListPacket {
   playerUniqueId: ZigZong
   emoteIds: Array<UUID>
 }
+export interface PositionTrackingDbRequestPacket {
+  action: BroadcastAction
+  trackingId: ZigZag
+}
+export const enum BroadcastAction {
+  Update = 0,
+  Destroy = 1,
+  NotFound = 2
+}
 export const enum Packet {
   Login = 1,
   PlayStatus = 2,
@@ -280,7 +289,8 @@ export const enum Packet {
   NetworkSettings = 143,
   RequestNetworkSettings = 193,
   UpdatePlayerGameType = 151,
-  EmoteList = 152
+  EmoteList = 152,
+  PositionTrackingDBRequest = 154
 }
 
 /**
@@ -299,6 +309,7 @@ export interface PacketEnumToPacketInjection {
   [Packet.RequestNetworkSettings]: RequestNetworkSettingsPacket;
   [Packet.UpdatePlayerGameType]: UpdatePlayerGameTypePacket;
   [Packet.EmoteList]: EmoteListPacket;
+  [Packet.PositionTrackingDBRequest]: PositionTrackingDBRequestPacket;
 }
 
 // Updated by build.js
