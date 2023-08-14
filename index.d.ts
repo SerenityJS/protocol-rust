@@ -355,6 +355,9 @@ export interface EntityBounds {
   min: BlockCoordinates
   max: BlockCoordinates
 }
+export interface RemoveVolumeEntityPacket {
+  runtimeId: VarLong
+}
 export const enum Packet {
   Login = 1,
   PlayStatus = 2,
@@ -379,7 +382,8 @@ export const enum Packet {
   ItemComponent = 162,
   FilterText = 163,
   SyncEntityProperty = 165,
-  AddVolumeEntity = 166
+  AddVolumeEntity = 166,
+  RemoveVolumeEntity = 167
 }
 
 /**
@@ -410,6 +414,7 @@ export interface PacketEnumToPacketInjection {
   [Packet.FilterText]: FilterTextPacket;
   [Packet.SyncEntityProperty]: SyncEntityPropertyPacket;
   [Packet.AddVolumeEntity]: AddVolumeEntityPacket;
+  [Packet.RemoveVolumeEntity]: RemoveVolumeEntityPacket;
 }
 
 // Updated by build.js
