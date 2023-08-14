@@ -379,6 +379,13 @@ export const enum DialogueAction {
   Open = 0,
   Close = 1
 }
+export interface EduSharedResourceUriPacket {
+  resource: SharedUri
+}
+export interface SharedUri {
+  buttonText: string
+  linkUri: string
+}
 export const enum Packet {
   Login = 1,
   PlayStatus = 2,
@@ -406,7 +413,8 @@ export const enum Packet {
   AddVolumeEntity = 166,
   RemoveVolumeEntity = 167,
   SimulationType = 168,
-  NpcDialogue = 169
+  NpcDialogue = 169,
+  EduSharedResourceUri = 170
 }
 
 /**
@@ -440,6 +448,7 @@ export interface PacketEnumToPacketInjection {
   [Packet.RemoveVolumeEntity]: RemoveVolumeEntityPacket;
   [Packet.SimulationType]: SimulationTypePacket;
   [Packet.NpcDialogue]: NpcDialoguePacket;
+  [Packet.EduSharedResourceUri]: EduSharedResourceUriPacket;
 }
 
 // Updated by build.js
