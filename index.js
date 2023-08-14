@@ -252,7 +252,7 @@ if (!nativeBinding) {
   throw new Error(`Failed to load native binding`)
 }
 
-const { PlayStatus, GameMode, Dimension, GameRuleType, PermissionLevel, ChatRestrictionLevel, MovementAuthority, CompressionAlgorithm, BroadcastAction, ViolationType, ViolationSeverity, ShakeAction, Packet, serialize, deserialize, getPacketId, framePackets, unframePackets, makeMotd } = nativeBinding
+const { PlayStatus, GameMode, Dimension, GameRuleType, PermissionLevel, ChatRestrictionLevel, MovementAuthority, CompressionAlgorithm, BroadcastAction, ViolationType, ViolationSeverity, ShakeAction, SimulationType, Packet, serialize, deserialize, getPacketId, framePackets, unframePackets, makeMotd } = nativeBinding
 
 module.exports.PlayStatus = PlayStatus
 module.exports.GameMode = GameMode
@@ -266,6 +266,7 @@ module.exports.BroadcastAction = BroadcastAction
 module.exports.ViolationType = ViolationType
 module.exports.ViolationSeverity = ViolationSeverity
 module.exports.ShakeAction = ShakeAction
+module.exports.SimulationType = SimulationType
 module.exports.Packet = Packet
 module.exports.serialize = serialize
 module.exports.deserialize = deserialize

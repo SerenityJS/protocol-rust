@@ -358,6 +358,15 @@ export interface EntityBounds {
 export interface RemoveVolumeEntityPacket {
   runtimeId: VarLong
 }
+export interface SimulationTypePacket {
+  status: SimulationType
+}
+export const enum SimulationType {
+  Game = 0,
+  Editor = 1,
+  Test = 2,
+  Invalid = 3
+}
 export const enum Packet {
   Login = 1,
   PlayStatus = 2,
@@ -383,7 +392,8 @@ export const enum Packet {
   FilterText = 163,
   SyncEntityProperty = 165,
   AddVolumeEntity = 166,
-  RemoveVolumeEntity = 167
+  RemoveVolumeEntity = 167,
+  SimulationType = 168
 }
 
 /**
@@ -415,6 +425,7 @@ export interface PacketEnumToPacketInjection {
   [Packet.SyncEntityProperty]: SyncEntityPropertyPacket;
   [Packet.AddVolumeEntity]: AddVolumeEntityPacket;
   [Packet.RemoveVolumeEntity]: RemoveVolumeEntityPacket;
+  [Packet.SimulationType]: SimulationTypePacket;
 }
 
 // Updated by build.js
