@@ -574,6 +574,11 @@ export interface PlayerActionPacket {
   resultPosition: BlockCoordinates
   face: ZigZag
 }
+export interface HurtArmorPacket {
+  cause: ZigZag
+  damage: ZigZag
+  armorSlot: ZigZag
+}
 export interface NetworkSettingsPacket {
   compressionThreshold: LU16
   compressionAlgorithm: CompressionAlgorithm
@@ -809,6 +814,7 @@ export const enum Packet {
   BlockPickRequest = 34,
   EntityPickRequest = 35,
   PlayerAction = 36,
+  HurtArmor = 37,
   NetworkSettings = 143,
   RequestNetworkSettings = 193,
   RequestChunkRadius = 69,
@@ -878,6 +884,7 @@ export interface PacketEnumToPacketInjection {
   [Packet.BlockPickRequest]: BlockPickRequestPacket;
   [Packet.EntityPickRequest]: EntityPickRequestPacket;
   [Packet.PlayerAction]: PlayerActionPacket;
+  [Packet.HurtArmor]: HurtArmorPacket;
   [Packet.NetworkSettings]: NetworkSettingsPacket;
   [Packet.RequestNetworkSettings]: RequestNetworkSettingsPacket;
   [Packet.RequestChunkRadius]: RequestChunkRadiusPacket;

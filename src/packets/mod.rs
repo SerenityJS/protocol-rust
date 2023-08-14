@@ -38,6 +38,7 @@ mod interact;
 mod block_pick_request;
 mod entity_pick_request;
 mod player_action;
+mod hurt_armor;
 mod network_settings;
 mod request_network_settings;
 
@@ -119,6 +120,7 @@ pub enum Packet {
   BlockPickRequest = 0x22,
   EntityPickRequest = 0x23,
   PlayerAction = 0x24,
+  HurtArmor = 0x25,
   NetworkSettings = 0x8f,
   RequestNetworkSettings = 0xc1,
   
