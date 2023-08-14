@@ -309,6 +309,12 @@ export interface AnimateEntityPacket {
   blendOutTime: LF32
   entityRuntimeIds: Array<VarLong>
 }
+export interface CameraShakePacket {
+  intensity: LF32
+  duration: LF32
+  shakeType: number
+  action: ShakeAction
+}
 export const enum Packet {
   Login = 1,
   PlayStatus = 2,
@@ -326,7 +332,8 @@ export const enum Packet {
   PositionTrackingDbBroadcast = 153,
   PacketViolationWarning = 156,
   MotionPredictionHints = 157,
-  AnimateEntity = 158
+  AnimateEntity = 158,
+  CameraShake = 159
 }
 
 /**
@@ -350,6 +357,7 @@ export interface PacketEnumToPacketInjection {
   [Packet.PacketViolationWarning]: PacketViolationWarningPacket;
   [Packet.MotionPredictionHints]: MotionPredictionHintsPacket;
   [Packet.AnimateEntity]: AnimateEntityPacket;
+  [Packet.CameraShake]: CameraShakePacket;
 }
 
 // Updated by build.js
