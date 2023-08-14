@@ -25,6 +25,7 @@ mod rider_jump;
 mod update_block;
 mod add_painting;
 mod tick_sync;
+mod level_sound_event_old;
 mod network_settings;
 mod request_network_settings;
 
@@ -92,6 +93,7 @@ pub enum Packet {
   UpdateBlock = 0x15,
   AddPainting = 0x16,
   TickSync = 0x17,
+  LevelSoundEventOld = 0x18,
   NetworkSettings = 0x8f,
   RequestNetworkSettings = 0xc1,
   

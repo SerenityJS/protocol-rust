@@ -424,6 +424,14 @@ export interface TickSyncPacket {
   requestTime: LI64
   responseTime: LI64
 }
+export interface LevelSoundEventOldPacket {
+  soundId: number
+  position: Vec3F
+  blockId: ZigZag
+  entityType: ZigZag
+  isBabyMob: boolean
+  isGlobal: boolean
+}
 export interface NetworkSettingsPacket {
   compressionThreshold: LU16
   compressionAlgorithm: CompressionAlgorithm
@@ -642,6 +650,7 @@ export const enum Packet {
   UpdateBlock = 21,
   AddPainting = 22,
   TickSync = 23,
+  LevelSoundEventOld = 24,
   NetworkSettings = 143,
   RequestNetworkSettings = 193,
   RequestChunkRadius = 69,
@@ -697,6 +706,7 @@ export interface PacketEnumToPacketInjection {
   [Packet.UpdateBlock]: UpdateBlockPacket;
   [Packet.AddPainting]: AddPaintingPacket;
   [Packet.TickSync]: TickSyncPacket;
+  [Packet.LevelSoundEventOld]: LevelSoundEventOldPacket;
   [Packet.NetworkSettings]: NetworkSettingsPacket;
   [Packet.RequestNetworkSettings]: RequestNetworkSettingsPacket;
   [Packet.RequestChunkRadius]: RequestChunkRadiusPacket;
