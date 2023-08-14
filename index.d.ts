@@ -508,12 +508,52 @@ export interface MobEquipmentPacket {
   selectedSlot: number
   windowId: WindowId
 }
+export const enum WindowId {
+  DropContents = -100,
+  Beacon = -24,
+  TradingOutput = -23,
+  TradingUseInputs = -22,
+  TradingInput1 = -21,
+  TradingInput2 = -20,
+  EnchantOutput = -17,
+  EnchantMaterial = -16,
+  EnchantInput = -15,
+  AnvilOutput = -13,
+  AnvilInput = -12,
+  AnvilMaterial = -11,
+  ContainerInput = -10,
+  CraftingUseIngredient = -5,
+  CraftingResult = -4,
+  CraftingRemoveIngredient = -3,
+  CraftingAddIngredient = -2,
+  None = -1,
+  Inventory = 0,
+  First = 1,
+  Last = 100,
+  Offhand = 119,
+  Armor = 120,
+  Creative = 121,
+  Hotbar = 122,
+  FixedInventory = 123,
+  Ui = 124
+}
 export interface MobArmorEquipmentPacket {
   runtimeId: VarLong
   helmet: ItemStack
   chestplate: ItemStack
   leggings: ItemStack
   boots: ItemStack
+}
+export interface InteractPacket {
+  action: InteractAction
+  entityId: VarLong
+  position: Vec3F
+}
+export const enum InteractAction {
+  LeaveVehicle = 3,
+  MouseOverEntity = 4,
+  NpcOpen = 5,
+  OpenInventory = 6
 }
 export interface NetworkSettingsPacket {
   compressionThreshold: LU16
@@ -746,6 +786,7 @@ export const enum Packet {
   InventoryTransaction = 30,
   MobEquipment = 31,
   MobArmorEquipment = 32,
+  Interact = 33,
   NetworkSettings = 143,
   RequestNetworkSettings = 193,
   RequestChunkRadius = 69,
@@ -811,6 +852,7 @@ export interface PacketEnumToPacketInjection {
   [Packet.InventoryTransaction]: InventoryTransactionPacket;
   [Packet.MobEquipment]: MobEquipmentPacket;
   [Packet.MobArmorEquipment]: MobArmorEquipmentPacket;
+  [Packet.Interact]: InteractPacket;
   [Packet.NetworkSettings]: NetworkSettingsPacket;
   [Packet.RequestNetworkSettings]: RequestNetworkSettingsPacket;
   [Packet.RequestChunkRadius]: RequestChunkRadiusPacket;

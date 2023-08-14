@@ -2,6 +2,7 @@ use protocol_derive::packet;
 use crate::packets::prelude::*;
 use crate::binary::prelude::*;
 use crate::packets::types::*;
+use napi::bindgen_prelude::*;
 
 #[packet(0x1f)]
 pub struct MobEquipmentPacket {
@@ -14,6 +15,7 @@ pub struct MobEquipmentPacket {
   pub window_id: u8,
 }
 
+#[napi]
 pub enum WindowId {
   DropContents = -100,
   Beacon = -24,

@@ -252,7 +252,7 @@ if (!nativeBinding) {
   throw new Error(`Failed to load native binding`)
 }
 
-const { PlayStatus, ResourceResponseStatus, TextType, GameMode, Dimension, GameRuleType, PermissionLevel, ChatRestrictionLevel, MovementAuthority, CommandPermissionLevel, MovePlayerMode, BlockEventType, EntityEventType, CompressionAlgorithm, BroadcastAction, ViolationType, ViolationSeverity, ShakeAction, SimulationType, DialogueAction, SubChunkTransitionType, Packet, serialize, deserialize, getPacketId, framePackets, unframePackets, makeMotd } = nativeBinding
+const { PlayStatus, ResourceResponseStatus, TextType, GameMode, Dimension, GameRuleType, PermissionLevel, ChatRestrictionLevel, MovementAuthority, CommandPermissionLevel, MovePlayerMode, BlockEventType, EntityEventType, WindowId, InteractAction, CompressionAlgorithm, BroadcastAction, ViolationType, ViolationSeverity, ShakeAction, SimulationType, DialogueAction, SubChunkTransitionType, Packet, serialize, deserialize, getPacketId, framePackets, unframePackets, makeMotd } = nativeBinding
 
 module.exports.PlayStatus = PlayStatus
 module.exports.ResourceResponseStatus = ResourceResponseStatus
@@ -267,6 +267,8 @@ module.exports.CommandPermissionLevel = CommandPermissionLevel
 module.exports.MovePlayerMode = MovePlayerMode
 module.exports.BlockEventType = BlockEventType
 module.exports.EntityEventType = EntityEventType
+module.exports.WindowId = WindowId
+module.exports.InteractAction = InteractAction
 module.exports.CompressionAlgorithm = CompressionAlgorithm
 module.exports.BroadcastAction = BroadcastAction
 module.exports.ViolationType = ViolationType

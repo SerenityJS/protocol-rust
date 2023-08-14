@@ -34,6 +34,7 @@ mod update_attributes;
 mod inventory_transaction;
 mod mob_equipment;
 mod mob_armor_equipment;
+mod interact;
 mod network_settings;
 mod request_network_settings;
 
@@ -111,6 +112,7 @@ pub enum Packet {
   InventoryTransaction = 0x1e,
   MobEquipment = 0x1f,
   MobArmorEquipment = 0x20,
+  Interact = 0x21,
   NetworkSettings = 0x8f,
   RequestNetworkSettings = 0xc1,
   
