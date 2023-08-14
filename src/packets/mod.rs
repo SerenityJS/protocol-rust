@@ -14,6 +14,7 @@ mod resource_pack_client_response;
 mod text;
 mod set_time;
 mod start_game;
+mod add_player;
 mod network_settings;
 mod request_network_settings;
 
@@ -63,6 +64,7 @@ pub enum Packet {
   Text = 0x09,
   SetTime = 0x0a,
   StartGame = 0x0b,
+  AddPlayer = 0x0c,
   NetworkSettings = 0x8f,
   RequestNetworkSettings = 0xc1,
   

@@ -280,6 +280,20 @@ export interface ItemState {
   runtimeId: LI16
   componentBased: boolean
 }
+export interface AddPlayerPacket {
+  uuid: UUID
+  username: string
+  runtimeId: VarLong
+  platformChatId: string
+  position: Vec3F
+  velocity: Vec3F
+  pitch: LF32
+  yaw: LF32
+  headYaw: LF32
+  gamemode: GameMode
+  uniqueId: LI16
+  deviceId: string
+}
 export interface NetworkSettingsPacket {
   compressionThreshold: LU16
   compressionAlgorithm: CompressionAlgorithm
@@ -458,6 +472,7 @@ export const enum Packet {
   Text = 9,
   SetTime = 10,
   StartGame = 11,
+  AddPlayer = 12,
   NetworkSettings = 143,
   RequestNetworkSettings = 193,
   UpdatePlayerGameType = 151,
@@ -498,6 +513,7 @@ export interface PacketEnumToPacketInjection {
   [Packet.Text]: TextPacket;
   [Packet.SetTime]: SetTimePacket;
   [Packet.StartGame]: StartGamePacket;
+  [Packet.AddPlayer]: AddPlayerPacket;
   [Packet.NetworkSettings]: NetworkSettingsPacket;
   [Packet.RequestNetworkSettings]: RequestNetworkSettingsPacket;
   [Packet.UpdatePlayerGameType]: UpdatePlayerGameTypePacket;
