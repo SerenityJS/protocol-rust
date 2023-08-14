@@ -405,6 +405,9 @@ export const enum MovePlayerMode {
   Teleport = 2,
   Rotation = 3
 }
+export interface RiderJumpPacket {
+  jumpStrength: ZigZag
+}
 export interface NetworkSettingsPacket {
   compressionThreshold: LU16
   compressionAlgorithm: CompressionAlgorithm
@@ -619,6 +622,7 @@ export const enum Packet {
   TakeItemEntity = 17,
   MoveEntity = 18,
   MovePlayer = 19,
+  RiderJump = 20,
   NetworkSettings = 143,
   RequestNetworkSettings = 193,
   RequestChunkRadius = 69,
@@ -670,6 +674,7 @@ export interface PacketEnumToPacketInjection {
   [Packet.TakeItemEntity]: TakeItemEntityPacket;
   [Packet.MoveEntity]: MoveEntityPacket;
   [Packet.MovePlayer]: MovePlayerPacket;
+  [Packet.RiderJump]: RiderJumpPacket;
   [Packet.NetworkSettings]: NetworkSettingsPacket;
   [Packet.RequestNetworkSettings]: RequestNetworkSettingsPacket;
   [Packet.RequestChunkRadius]: RequestChunkRadiusPacket;
