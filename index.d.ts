@@ -498,6 +498,9 @@ export interface UpdateAttributesPacket {
   attributes: Array<PlayerAttribute>
   tick: VarLong
 }
+export interface InventoryTransactionPacket {
+  
+}
 export interface NetworkSettingsPacket {
   compressionThreshold: LU16
   compressionAlgorithm: CompressionAlgorithm
@@ -726,6 +729,7 @@ export const enum Packet {
   EntityEvent = 27,
   MobEffect = 28,
   UpdateAttributes = 29,
+  InventoryTransaction = 30,
   NetworkSettings = 143,
   RequestNetworkSettings = 193,
   RequestChunkRadius = 69,
@@ -788,6 +792,7 @@ export interface PacketEnumToPacketInjection {
   [Packet.EntityEvent]: EntityEventPacket;
   [Packet.MobEffect]: MobEffectPacket;
   [Packet.UpdateAttributes]: UpdateAttributesPacket;
+  [Packet.InventoryTransaction]: InventoryTransactionPacket;
   [Packet.NetworkSettings]: NetworkSettingsPacket;
   [Packet.RequestNetworkSettings]: RequestNetworkSettingsPacket;
   [Packet.RequestChunkRadius]: RequestChunkRadiusPacket;
