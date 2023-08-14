@@ -295,6 +295,11 @@ export const enum ViolationSeverity {
   Severe = 1,
   Fatal = 2
 }
+export interface MotionPredictionHintsPacket {
+  entityRuntimeId: VarLong
+  velocity: Vec3F
+  onGround: boolean
+}
 export const enum Packet {
   Login = 1,
   PlayStatus = 2,
@@ -310,7 +315,8 @@ export const enum Packet {
   EmoteList = 152,
   PositionTrackingDbRequest = 154,
   PositionTrackingDbBroadcast = 153,
-  PacketViolationWarning = 156
+  PacketViolationWarning = 156,
+  MotionPredictionHints = 157
 }
 
 /**
@@ -332,6 +338,7 @@ export interface PacketEnumToPacketInjection {
   [Packet.PositionTrackingDbRequest]: PositionTrackingDbRequestPacket;
   [Packet.PositionTrackingDbBroadcast]: PositionTrackingDbBroadcastPacket;
   [Packet.PacketViolationWarning]: PacketViolationWarningPacket;
+  [Packet.MotionPredictionHints]: MotionPredictionHintsPacket;
 }
 
 // Updated by build.js
