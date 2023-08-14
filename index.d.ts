@@ -368,6 +368,9 @@ export interface EntityAttribute {
   max: LF32
   value: LF32
 }
+export interface RemoveEntityPacket {
+  uniqueId: ZigZong
+}
 export interface NetworkSettingsPacket {
   compressionThreshold: LU16
   compressionAlgorithm: CompressionAlgorithm
@@ -548,6 +551,7 @@ export const enum Packet {
   StartGame = 11,
   AddPlayer = 12,
   AddEntity = 13,
+  RemoveEntity = 14,
   NetworkSettings = 143,
   RequestNetworkSettings = 193,
   UpdatePlayerGameType = 151,
@@ -590,6 +594,7 @@ export interface PacketEnumToPacketInjection {
   [Packet.StartGame]: StartGamePacket;
   [Packet.AddPlayer]: AddPlayerPacket;
   [Packet.AddEntity]: AddEntityPacket;
+  [Packet.RemoveEntity]: RemoveEntityPacket;
   [Packet.NetworkSettings]: NetworkSettingsPacket;
   [Packet.RequestNetworkSettings]: RequestNetworkSettingsPacket;
   [Packet.UpdatePlayerGameType]: UpdatePlayerGameTypePacket;

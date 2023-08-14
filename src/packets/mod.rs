@@ -16,6 +16,7 @@ mod set_time;
 mod start_game;
 mod add_player;
 mod add_entity;
+mod remove_entity;
 mod network_settings;
 mod request_network_settings;
 
@@ -67,6 +68,7 @@ pub enum Packet {
   StartGame = 0x0b,
   AddPlayer = 0x0c,
   AddEntity = 0x0d,
+  RemoveEntity = 0x0e,
   NetworkSettings = 0x8f,
   RequestNetworkSettings = 0xc1,
   
