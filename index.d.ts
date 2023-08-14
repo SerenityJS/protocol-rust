@@ -277,6 +277,10 @@ export const enum BroadcastAction {
   Destroy = 1,
   NotFound = 2
 }
+export interface PositionTrackingDbBroadcastPacket {
+  action: BroadcastAction
+  trackingId: ZigZag
+}
 export const enum Packet {
   Login = 1,
   PlayStatus = 2,
@@ -290,7 +294,8 @@ export const enum Packet {
   RequestNetworkSettings = 193,
   UpdatePlayerGameType = 151,
   EmoteList = 152,
-  PositionTrackingDBRequest = 154
+  PositionTrackingDbRequest = 154,
+  PositionTrackingDbBroadcast = 153
 }
 
 /**
@@ -309,7 +314,8 @@ export interface PacketEnumToPacketInjection {
   [Packet.RequestNetworkSettings]: RequestNetworkSettingsPacket;
   [Packet.UpdatePlayerGameType]: UpdatePlayerGameTypePacket;
   [Packet.EmoteList]: EmoteListPacket;
-  [Packet.PositionTrackingDBRequest]: PositionTrackingDBRequestPacket;
+  [Packet.PositionTrackingDbRequest]: PositionTrackingDbRequestPacket;
+  [Packet.PositionTrackingDbBroadcast]: PositionTrackingDbBroadcastPacket;
 }
 
 // Updated by build.js
