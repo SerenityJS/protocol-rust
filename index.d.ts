@@ -380,6 +380,10 @@ export interface AddItemEntityPacket {
   metadata: Array<MetadataDictionary>
   isFromFishing: boolean
 }
+export interface TakeItemEntityPacket {
+  runtimeId: VarLong
+  target: VarInt
+}
 export interface NetworkSettingsPacket {
   compressionThreshold: LU16
   compressionAlgorithm: CompressionAlgorithm
@@ -562,6 +566,7 @@ export const enum Packet {
   AddEntity = 13,
   RemoveEntity = 14,
   AddItemEntity = 15,
+  TakeItemEntity = 17,
   NetworkSettings = 143,
   RequestNetworkSettings = 193,
   UpdatePlayerGameType = 151,
@@ -606,6 +611,7 @@ export interface PacketEnumToPacketInjection {
   [Packet.AddEntity]: AddEntityPacket;
   [Packet.RemoveEntity]: RemoveEntityPacket;
   [Packet.AddItemEntity]: AddItemEntityPacket;
+  [Packet.TakeItemEntity]: TakeItemEntityPacket;
   [Packet.NetworkSettings]: NetworkSettingsPacket;
   [Packet.RequestNetworkSettings]: RequestNetworkSettingsPacket;
   [Packet.UpdatePlayerGameType]: UpdatePlayerGameTypePacket;
