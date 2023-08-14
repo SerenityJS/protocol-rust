@@ -409,6 +409,9 @@ export const enum SubChunkTransitionType {
   Create = 1,
   Destroy = 2
 }
+export interface PhotoInfoRequestPacket {
+  photoId: ZigZong
+}
 export const enum Packet {
   Login = 1,
   PlayStatus = 2,
@@ -439,7 +442,8 @@ export const enum Packet {
   NpcDialogue = 169,
   EduSharedResourceUri = 170,
   CreatePhoto = 171,
-  UpdateSubchunkBlocks = 172
+  UpdateSubchunkBlocks = 172,
+  PhotoInfoRequest = 173
 }
 
 /**
@@ -476,6 +480,7 @@ export interface PacketEnumToPacketInjection {
   [Packet.EduSharedResourceUri]: EduSharedResourceUriPacket;
   [Packet.CreatePhoto]: CreatePhotoPacket;
   [Packet.UpdateSubchunkBlocks]: UpdateSubchunkBlocksPacket;
+  [Packet.PhotoInfoRequest]: PhotoInfoRequestPacket;
 }
 
 // Updated by build.js
