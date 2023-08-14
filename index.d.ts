@@ -335,6 +335,10 @@ export interface ItemComponentList {
   name: string
   nbt: NBT
 }
+export interface FilterTextPacket {
+  text: string
+  fromServer: boolean
+}
 export const enum Packet {
   Login = 1,
   PlayStatus = 2,
@@ -356,7 +360,8 @@ export const enum Packet {
   CameraShake = 159,
   PlayerFog = 160,
   CorrectPlayerMovePrediction = 161,
-  ItemComponent = 162
+  ItemComponent = 162,
+  FilterText = 163
 }
 
 /**
@@ -384,6 +389,7 @@ export interface PacketEnumToPacketInjection {
   [Packet.PlayerFog]: PlayerFogPacket;
   [Packet.CorrectPlayerMovePrediction]: CorrectPlayerMovePredictionPacket;
   [Packet.ItemComponent]: ItemComponentPacket;
+  [Packet.FilterText]: FilterTextPacket;
 }
 
 // Updated by build.js
