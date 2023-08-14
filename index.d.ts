@@ -342,6 +342,19 @@ export interface FilterTextPacket {
 export interface SyncEntityPropertyPacket {
   nbt: NBT
 }
+export interface AddVolumeEntityPacket {
+  runtimeId: VarLong
+  nbt: NBT
+  encodingIdentifier: string
+  instanceName: string
+  bounds: EntityBounds
+  dimension: ZigZag
+  engineVersion: string
+}
+export interface EntityBounds {
+  min: BlockCoordinates
+  max: BlockCoordinates
+}
 export const enum Packet {
   Login = 1,
   PlayStatus = 2,
@@ -365,7 +378,8 @@ export const enum Packet {
   CorrectPlayerMovePrediction = 161,
   ItemComponent = 162,
   FilterText = 163,
-  SyncEntityProperty = 165
+  SyncEntityProperty = 165,
+  AddVolumeEntity = 166
 }
 
 /**
@@ -395,6 +409,7 @@ export interface PacketEnumToPacketInjection {
   [Packet.ItemComponent]: ItemComponentPacket;
   [Packet.FilterText]: FilterTextPacket;
   [Packet.SyncEntityProperty]: SyncEntityPropertyPacket;
+  [Packet.AddVolumeEntity]: AddVolumeEntityPacket;
 }
 
 // Updated by build.js
