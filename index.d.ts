@@ -562,6 +562,11 @@ export interface BlockPickRequestPacket {
   withData: boolean
   selectedSlot: number
 }
+export interface EntityPickRequestPacket {
+  runtimeId: LU64
+  selectedSlot: number
+  withData: boolean
+}
 export interface NetworkSettingsPacket {
   compressionThreshold: LU16
   compressionAlgorithm: CompressionAlgorithm
@@ -795,6 +800,7 @@ export const enum Packet {
   MobArmorEquipment = 32,
   Interact = 33,
   BlockPickRequest = 34,
+  EntityPickRequest = 35,
   NetworkSettings = 143,
   RequestNetworkSettings = 193,
   RequestChunkRadius = 69,
@@ -862,6 +868,7 @@ export interface PacketEnumToPacketInjection {
   [Packet.MobArmorEquipment]: MobArmorEquipmentPacket;
   [Packet.Interact]: InteractPacket;
   [Packet.BlockPickRequest]: BlockPickRequestPacket;
+  [Packet.EntityPickRequest]: EntityPickRequestPacket;
   [Packet.NetworkSettings]: NetworkSettingsPacket;
   [Packet.RequestNetworkSettings]: RequestNetworkSettingsPacket;
   [Packet.RequestChunkRadius]: RequestChunkRadiusPacket;
