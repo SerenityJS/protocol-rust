@@ -264,6 +264,10 @@ export interface UpdatePlayerGameTypePacket {
   gamemode: GameMode
   playerUniqueId: ZigZong
 }
+export interface EmoteListPacket {
+  playerUniqueId: ZigZong
+  emoteIds: Array<UUID>
+}
 export const enum Packet {
   Login = 1,
   PlayStatus = 2,
@@ -275,7 +279,8 @@ export const enum Packet {
   StartGame = 11,
   NetworkSettings = 143,
   RequestNetworkSettings = 193,
-  UpdatePlayerGameType = 151
+  UpdatePlayerGameType = 151,
+  EmoteList = 152
 }
 
 /**
@@ -293,6 +298,7 @@ export interface PacketEnumToPacketInjection {
   [Packet.NetworkSettings]: NetworkSettingsPacket;
   [Packet.RequestNetworkSettings]: RequestNetworkSettingsPacket;
   [Packet.UpdatePlayerGameType]: UpdatePlayerGameTypePacket;
+  [Packet.EmoteList]: EmoteListPacket;
 }
 
 // Updated by build.js

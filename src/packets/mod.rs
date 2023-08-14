@@ -15,6 +15,7 @@ mod network_settings;
 mod request_network_settings;
 
 mod update_player_game_type;
+mod emote_list;
 
 use protocol_derive::packet_enum;
 use napi::bindgen_prelude::*;
@@ -39,6 +40,7 @@ pub enum Packet {
   NetworkSettings = 0x8f,
   RequestNetworkSettings = 0xc1,
   UpdatePlayerGameType = 0x97,
+  EmoteList = 0x98,
 }
 
 // These must be implemented on packets so the enum serializer can work
