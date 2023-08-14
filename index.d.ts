@@ -399,6 +399,9 @@ export interface RequestChunkRadiusPacket {
 export interface ChunkRadiusUpdatePacket {
   chunkRadius: ZigZag
 }
+export interface BiomeDefinitionListPacket {
+  nbt: NBT
+}
 export interface UpdatePlayerGameTypePacket {
   gamemode: GameMode
   playerUniqueId: ZigZong
@@ -591,6 +594,7 @@ export const enum Packet {
   RequestNetworkSettings = 193,
   RequestChunkRadius = 69,
   ChunkRadiusUpdate = 70,
+  BiomeDefinitionList = 122,
   UpdatePlayerGameType = 151,
   EmoteList = 152,
   PositionTrackingDbRequest = 154,
@@ -639,6 +643,7 @@ export interface PacketEnumToPacketInjection {
   [Packet.RequestNetworkSettings]: RequestNetworkSettingsPacket;
   [Packet.RequestChunkRadius]: RequestChunkRadiusPacket;
   [Packet.ChunkRadiusUpdate]: ChunkRadiusUpdatePacket;
+  [Packet.BiomeDefinitionList]: BiomeDefinitionListPacket;
   [Packet.UpdatePlayerGameType]: UpdatePlayerGameTypePacket;
   [Packet.EmoteList]: EmoteListPacket;
   [Packet.PositionTrackingDbRequest]: PositionTrackingDbRequestPacket;

@@ -25,6 +25,8 @@ mod request_network_settings;
 mod request_chunk_radius;
 mod chunk_radius_update;
 
+mod biome_definition_list;
+
 mod update_player_game_type;
 mod emote_list;
 mod position_tracking_db_request;
@@ -83,6 +85,8 @@ pub enum Packet {
   
   RequestChunkRadius = 0x45,
   ChunkRadiusUpdate = 0x46,
+
+  BiomeDefinitionList = 0x7a,
 
   UpdatePlayerGameType = 0x97,
   EmoteList = 0x98,
