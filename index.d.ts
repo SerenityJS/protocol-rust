@@ -555,6 +555,13 @@ export const enum InteractAction {
   NpcOpen = 5,
   OpenInventory = 6
 }
+export interface BlockPickRequestPacket {
+  x: ZigZag
+  y: ZigZag
+  z: ZigZag
+  withData: boolean
+  selectedSlot: number
+}
 export interface NetworkSettingsPacket {
   compressionThreshold: LU16
   compressionAlgorithm: CompressionAlgorithm
@@ -787,6 +794,7 @@ export const enum Packet {
   MobEquipment = 31,
   MobArmorEquipment = 32,
   Interact = 33,
+  BlockPickRequest = 34,
   NetworkSettings = 143,
   RequestNetworkSettings = 193,
   RequestChunkRadius = 69,
@@ -853,6 +861,7 @@ export interface PacketEnumToPacketInjection {
   [Packet.MobEquipment]: MobEquipmentPacket;
   [Packet.MobArmorEquipment]: MobArmorEquipmentPacket;
   [Packet.Interact]: InteractPacket;
+  [Packet.BlockPickRequest]: BlockPickRequestPacket;
   [Packet.NetworkSettings]: NetworkSettingsPacket;
   [Packet.RequestNetworkSettings]: RequestNetworkSettingsPacket;
   [Packet.RequestChunkRadius]: RequestChunkRadiusPacket;
