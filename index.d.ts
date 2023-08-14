@@ -260,6 +260,10 @@ export const enum CompressionAlgorithm {
 export interface RequestNetworkSettingsPacket {
   protocolVersion: number
 }
+export interface UpdatePlayerGameTypePacket {
+  gamemode: GameMode
+  playerUniqueId: ZigZong
+}
 export const enum Packet {
   Login = 1,
   PlayStatus = 2,
@@ -270,7 +274,8 @@ export const enum Packet {
   ResourcePacksStack = 7,
   StartGame = 11,
   NetworkSettings = 143,
-  RequestNetworkSettings = 193
+  RequestNetworkSettings = 193,
+  UpdatePlayerGameType = 151
 }
 
 /**
@@ -287,6 +292,7 @@ export interface PacketEnumToPacketInjection {
   [Packet.StartGame]: StartGamePacket;
   [Packet.NetworkSettings]: NetworkSettingsPacket;
   [Packet.RequestNetworkSettings]: RequestNetworkSettingsPacket;
+  [Packet.UpdatePlayerGameType]: UpdatePlayerGameTypePacket;
 }
 
 // Updated by build.js

@@ -14,6 +14,8 @@ mod start_game;
 mod network_settings;
 mod request_network_settings;
 
+mod update_player_game_type;
+
 use protocol_derive::packet_enum;
 use napi::bindgen_prelude::*;
 use crate::binary::BinaryStream;
@@ -36,6 +38,7 @@ pub enum Packet {
   StartGame = 0x0b,
   NetworkSettings = 0x8f,
   RequestNetworkSettings = 0xc1,
+  UpdatePlayerGameType = 0x97,
 }
 
 // These must be implemented on packets so the enum serializer can work
