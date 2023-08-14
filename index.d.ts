@@ -339,6 +339,9 @@ export interface FilterTextPacket {
   text: string
   fromServer: boolean
 }
+export interface SyncEntityPropertyPacket {
+  nbt: NBT
+}
 export const enum Packet {
   Login = 1,
   PlayStatus = 2,
@@ -361,7 +364,8 @@ export const enum Packet {
   PlayerFog = 160,
   CorrectPlayerMovePrediction = 161,
   ItemComponent = 162,
-  FilterText = 163
+  FilterText = 163,
+  SyncEntityProperty = 165
 }
 
 /**
@@ -390,6 +394,7 @@ export interface PacketEnumToPacketInjection {
   [Packet.CorrectPlayerMovePrediction]: CorrectPlayerMovePredictionPacket;
   [Packet.ItemComponent]: ItemComponentPacket;
   [Packet.FilterText]: FilterTextPacket;
+  [Packet.SyncEntityProperty]: SyncEntityPropertyPacket;
 }
 
 // Updated by build.js

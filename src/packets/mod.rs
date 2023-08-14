@@ -26,6 +26,8 @@ mod player_fog;
 mod correct_player_move_prediction;
 mod item_component;
 mod filter_text;
+// mod debug_renderer;
+mod sync_entity_property;
 
 use protocol_derive::packet_enum;
 use napi::bindgen_prelude::*;
@@ -63,6 +65,7 @@ pub enum Packet {
   ItemComponent = 0xa2,
   FilterText = 0xa3,
   // TODO: DebugRenderer = 0xa4,
+  SyncEntityProperty = 0xa5,
 }
 
 // These must be implemented on packets so the enum serializer can work
