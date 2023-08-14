@@ -24,6 +24,7 @@ mod move_player;
 mod rider_jump;
 mod update_block;
 mod add_painting;
+mod tick_sync;
 mod network_settings;
 mod request_network_settings;
 
@@ -90,6 +91,7 @@ pub enum Packet {
   RiderJump = 0x14,
   UpdateBlock = 0x15,
   AddPainting = 0x16,
+  TickSync = 0x17,
   NetworkSettings = 0x8f,
   RequestNetworkSettings = 0xc1,
   

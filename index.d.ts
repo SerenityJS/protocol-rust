@@ -420,6 +420,10 @@ export interface AddPaintingPacket {
   direction: ZigZag
   title: string
 }
+export interface TickSyncPacket {
+  requestTime: LI64
+  responseTime: LI64
+}
 export interface NetworkSettingsPacket {
   compressionThreshold: LU16
   compressionAlgorithm: CompressionAlgorithm
@@ -637,6 +641,7 @@ export const enum Packet {
   RiderJump = 20,
   UpdateBlock = 21,
   AddPainting = 22,
+  TickSync = 23,
   NetworkSettings = 143,
   RequestNetworkSettings = 193,
   RequestChunkRadius = 69,
@@ -691,6 +696,7 @@ export interface PacketEnumToPacketInjection {
   [Packet.RiderJump]: RiderJumpPacket;
   [Packet.UpdateBlock]: UpdateBlockPacket;
   [Packet.AddPainting]: AddPaintingPacket;
+  [Packet.TickSync]: TickSyncPacket;
   [Packet.NetworkSettings]: NetworkSettingsPacket;
   [Packet.RequestNetworkSettings]: RequestNetworkSettingsPacket;
   [Packet.RequestChunkRadius]: RequestChunkRadiusPacket;
