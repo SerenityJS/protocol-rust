@@ -446,6 +446,29 @@ export const enum BlockEventType {
   Sound = 0,
   ChangeState = 1
 }
+export interface EntityEventPacket {
+  runtimeId: VarLong
+  eventType: EntityEventType
+  data: ZigZag
+}
+export const enum EntityEventType {
+  Jump = 0,
+  HurtAnimation = 1,
+  DeathAnimation = 2,
+  ArmSwing = 3,
+  StopAttack = 4,
+  TameFail = 5,
+  TameSuccess = 6,
+  ShakeWet = 7,
+  UseItem = 8,
+  EatGrassAnimation = 9,
+  FishHookBubble = 10,
+  FishHookPosition = 11,
+  FishHookHook = 12,
+  FishHookTease = 13,
+  SquidInkCloud = 14,
+  ZombieVillagerCure = 15
+}
 export interface NetworkSettingsPacket {
   compressionThreshold: LU16
   compressionAlgorithm: CompressionAlgorithm
@@ -667,6 +690,7 @@ export const enum Packet {
   LevelSoundEventOld = 24,
   LevelEvent = 25,
   BlockEvent = 26,
+  EntityEvent = 27,
   NetworkSettings = 143,
   RequestNetworkSettings = 193,
   RequestChunkRadius = 69,
@@ -725,6 +749,7 @@ export interface PacketEnumToPacketInjection {
   [Packet.LevelSoundEventOld]: LevelSoundEventOldPacket;
   [Packet.LevelEvent]: LevelEventPacket;
   [Packet.BlockEvent]: BlockEventPacket;
+  [Packet.EntityEvent]: EntityEventPacket;
   [Packet.NetworkSettings]: NetworkSettingsPacket;
   [Packet.RequestNetworkSettings]: RequestNetworkSettingsPacket;
   [Packet.RequestChunkRadius]: RequestChunkRadiusPacket;

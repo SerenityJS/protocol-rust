@@ -28,6 +28,7 @@ mod tick_sync;
 mod level_sound_event_old;
 mod level_event;
 mod block_event;
+mod entity_event;
 mod network_settings;
 mod request_network_settings;
 
@@ -98,6 +99,7 @@ pub enum Packet {
   LevelSoundEventOld = 0x18,
   LevelEvent = 0x19,
   BlockEvent = 0x1a,
+  EntityEvent = 0x1b,
   NetworkSettings = 0x8f,
   RequestNetworkSettings = 0xc1,
   
