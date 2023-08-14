@@ -72,6 +72,11 @@ export interface Rotation {
   pitch: LF32
   headYaw: LF32
 }
+export interface BlockCoordinates {
+  x: ZigZag
+  y: VarInt
+  z: ZigZag
+}
 export interface LoginPacket {
   protocolVersion: number
   tokens: LoginTokens
@@ -269,11 +274,6 @@ export const enum Dimension {
   Nether = 1,
   End = 2
 }
-export interface BlockCoordinates {
-  x: ZigZag
-  y: VarInt
-  z: ZigZag
-}
 export interface GameRule {
   name: string
   editable: boolean
@@ -407,6 +407,11 @@ export const enum MovePlayerMode {
 }
 export interface RiderJumpPacket {
   jumpStrength: ZigZag
+}
+export interface UpdateBlockPacket {
+  position: BlockCoordinates
+  runtimeId: VarInt
+  layer: VarInt
 }
 export interface NetworkSettingsPacket {
   compressionThreshold: LU16
@@ -623,6 +628,7 @@ export const enum Packet {
   MoveEntity = 18,
   MovePlayer = 19,
   RiderJump = 20,
+  UpdateBlock = 21,
   NetworkSettings = 143,
   RequestNetworkSettings = 193,
   RequestChunkRadius = 69,
@@ -675,6 +681,7 @@ export interface PacketEnumToPacketInjection {
   [Packet.MoveEntity]: MoveEntityPacket;
   [Packet.MovePlayer]: MovePlayerPacket;
   [Packet.RiderJump]: RiderJumpPacket;
+  [Packet.UpdateBlock]: UpdateBlockPacket;
   [Packet.NetworkSettings]: NetworkSettingsPacket;
   [Packet.RequestNetworkSettings]: RequestNetworkSettingsPacket;
   [Packet.RequestChunkRadius]: RequestChunkRadiusPacket;

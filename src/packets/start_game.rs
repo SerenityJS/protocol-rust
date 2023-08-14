@@ -111,15 +111,6 @@ pub enum Dimension {
   End,
 }
 
-// Certified Mojang Moment
-// This is only used here 🤦
-#[packet]
-pub struct BlockCoordinates {
-  pub x: ZigZag,
-  pub y: VarInt,
-  pub z: ZigZag,
-}
-
 #[packet(manual_serialize)]
 pub struct GameRule {
   pub name: String,

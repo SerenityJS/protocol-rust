@@ -2,8 +2,7 @@ use protocol_derive::packet;
 use crate::binary::prelude::*;
 use crate::packets::*;
 use napi::bindgen_prelude::*;
-
-use super::start_game::BlockCoordinates;
+use crate::packets::types::*;
 
 #[packet(0xac)]
 pub struct UpdateSubchunkBlocksPacket {

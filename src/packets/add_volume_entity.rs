@@ -2,9 +2,7 @@ use protocol_derive::packet;
 use crate::binary::prelude::*;
 use crate::packets::prelude::*;
 use crate::nbt::NBT;
-
-use super::start_game::BlockCoordinates;
-
+use crate::packets::types::*;
 
 #[packet(0xa6)]
 pub struct AddVolumeEntityPacket {

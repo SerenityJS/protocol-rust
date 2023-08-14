@@ -22,6 +22,7 @@ mod take_item_entity;
 mod move_entity;
 mod move_player;
 mod rider_jump;
+mod update_block;
 mod network_settings;
 mod request_network_settings;
 
@@ -86,6 +87,7 @@ pub enum Packet {
   MoveEntity = 0x12,
   MovePlayer = 0x13,
   RiderJump = 0x14,
+  UpdateBlock = 0x15,
   NetworkSettings = 0x8f,
   RequestNetworkSettings = 0xc1,
   
