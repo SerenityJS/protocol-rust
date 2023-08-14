@@ -281,6 +281,20 @@ export interface PositionTrackingDbBroadcastPacket {
   action: BroadcastAction
   trackingId: ZigZag
 }
+export interface PacketViolationWarningPacket {
+  violationType: ViolationType
+  severity: ViolationSeverity
+  packetyId: ZigZag
+  reason: string
+}
+export const enum ViolationType {
+  Malformed = 0
+}
+export const enum ViolationSeverity {
+  Warning = 0,
+  Severe = 1,
+  Fatal = 2
+}
 export const enum Packet {
   Login = 1,
   PlayStatus = 2,
@@ -295,7 +309,8 @@ export const enum Packet {
   UpdatePlayerGameType = 151,
   EmoteList = 152,
   PositionTrackingDbRequest = 154,
-  PositionTrackingDbBroadcast = 153
+  PositionTrackingDbBroadcast = 153,
+  PacketViolationWarning = 156
 }
 
 /**
@@ -316,6 +331,7 @@ export interface PacketEnumToPacketInjection {
   [Packet.EmoteList]: EmoteListPacket;
   [Packet.PositionTrackingDbRequest]: PositionTrackingDbRequestPacket;
   [Packet.PositionTrackingDbBroadcast]: PositionTrackingDbBroadcastPacket;
+  [Packet.PacketViolationWarning]: PacketViolationWarningPacket;
 }
 
 // Updated by build.js

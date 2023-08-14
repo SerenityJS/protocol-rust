@@ -18,6 +18,7 @@ mod update_player_game_type;
 mod emote_list;
 mod position_tracking_db_request;
 mod position_tracking_db_broadcast;
+mod packet_violation_warning;
 
 use protocol_derive::packet_enum;
 use napi::bindgen_prelude::*;
@@ -46,6 +47,7 @@ pub enum Packet {
   EmoteList = 0x98,
   PositionTrackingDbRequest = 0x9a,
   PositionTrackingDbBroadcast = 0x99,
+  PacketViolationWarning = 0x9c,
 }
 
 // These must be implemented on packets so the enum serializer can work
