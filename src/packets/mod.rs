@@ -61,6 +61,7 @@ mod update_subchunk_blocks;
 mod photo_info_request;
 
 mod creative_content;
+mod toast_request;
 
 use protocol_derive::packet_enum;
 use napi::bindgen_prelude::*;
@@ -132,6 +133,7 @@ pub enum Packet {
   PhotoInfoRequest = 0xad,
 
   CreativeContent = 0x91,
+  ToastRequest = 0xba,
 }
 
 // These must be implemented on packets so the enum serializer can work

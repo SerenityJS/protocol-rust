@@ -664,6 +664,10 @@ export interface ItemLegacyExtras {
   canPlaceOn: Array<LittleString>
   canDestroy: Array<LittleString>
 }
+export interface ToastRequestPacket {
+  title: string
+  message: string
+}
 export const enum Packet {
   Login = 1,
   PlayStatus = 2,
@@ -717,7 +721,8 @@ export const enum Packet {
   CreatePhoto = 171,
   UpdateSubchunkBlocks = 172,
   PhotoInfoRequest = 173,
-  CreativeContent = 145
+  CreativeContent = 145,
+  ToastRequest = 186
 }
 
 /**
@@ -777,6 +782,7 @@ export interface PacketEnumToPacketInjection {
   [Packet.UpdateSubchunkBlocks]: UpdateSubchunkBlocksPacket;
   [Packet.PhotoInfoRequest]: PhotoInfoRequestPacket;
   [Packet.CreativeContent]: CreativeContentPacket;
+  [Packet.ToastRequest]: ToastRequestPacket;
 }
 
 // Updated by build.js
