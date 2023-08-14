@@ -27,6 +27,7 @@ mod add_painting;
 mod tick_sync;
 mod level_sound_event_old;
 mod level_event;
+mod block_event;
 mod network_settings;
 mod request_network_settings;
 
@@ -96,6 +97,7 @@ pub enum Packet {
   TickSync = 0x17,
   LevelSoundEventOld = 0x18,
   LevelEvent = 0x19,
+  BlockEvent = 0x1a,
   NetworkSettings = 0x8f,
   RequestNetworkSettings = 0xc1,
   

@@ -437,6 +437,15 @@ export interface LevelEventPacket {
   position: Vec3F
   data: ZigZag
 }
+export interface BlockEventPacket {
+  position: BlockCoordinates
+  eventType: BlockEventType
+  data: ZigZag
+}
+export const enum BlockEventType {
+  Sound = 0,
+  ChangeState = 1
+}
 export interface NetworkSettingsPacket {
   compressionThreshold: LU16
   compressionAlgorithm: CompressionAlgorithm
@@ -657,6 +666,7 @@ export const enum Packet {
   TickSync = 23,
   LevelSoundEventOld = 24,
   LevelEvent = 25,
+  BlockEvent = 26,
   NetworkSettings = 143,
   RequestNetworkSettings = 193,
   RequestChunkRadius = 69,
@@ -714,6 +724,7 @@ export interface PacketEnumToPacketInjection {
   [Packet.TickSync]: TickSyncPacket;
   [Packet.LevelSoundEventOld]: LevelSoundEventOldPacket;
   [Packet.LevelEvent]: LevelEventPacket;
+  [Packet.BlockEvent]: BlockEventPacket;
   [Packet.NetworkSettings]: NetworkSettingsPacket;
   [Packet.RequestNetworkSettings]: RequestNetworkSettingsPacket;
   [Packet.RequestChunkRadius]: RequestChunkRadiusPacket;
