@@ -77,6 +77,22 @@ export interface BlockCoordinates {
   y: VarInt
   z: ZigZag
 }
+export interface PlayerAttribute {
+  min: LF32
+  max: LF32
+  current: LF32
+  default: LF32
+  name: string
+  modifiers: Array<AttributeModifier>
+}
+export interface AttributeModifier {
+  id: string
+  name: string
+  amount: LF32
+  operation: LI32
+  operand: LI32
+  serialize: boolean
+}
 export interface LoginPacket {
   protocolVersion: number
   tokens: LoginTokens
@@ -477,6 +493,11 @@ export interface MobEffectPacket {
   particles: boolean
   duration: ZigZag
 }
+export interface UpdateAttributesPacket {
+  runtimeId: VarLong
+  attributes: Array<PlayerAttribute>
+  tick: VarLong
+}
 export interface NetworkSettingsPacket {
   compressionThreshold: LU16
   compressionAlgorithm: CompressionAlgorithm
@@ -704,6 +725,7 @@ export const enum Packet {
   BlockEvent = 26,
   EntityEvent = 27,
   MobEffect = 28,
+  UpdateAttributes = 29,
   NetworkSettings = 143,
   RequestNetworkSettings = 193,
   RequestChunkRadius = 69,
@@ -765,6 +787,7 @@ export interface PacketEnumToPacketInjection {
   [Packet.BlockEvent]: BlockEventPacket;
   [Packet.EntityEvent]: EntityEventPacket;
   [Packet.MobEffect]: MobEffectPacket;
+  [Packet.UpdateAttributes]: UpdateAttributesPacket;
   [Packet.NetworkSettings]: NetworkSettingsPacket;
   [Packet.RequestNetworkSettings]: RequestNetworkSettingsPacket;
   [Packet.RequestChunkRadius]: RequestChunkRadiusPacket;

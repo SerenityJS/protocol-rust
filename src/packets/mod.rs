@@ -30,6 +30,7 @@ mod level_event;
 mod block_event;
 mod entity_event;
 mod mob_effect;
+mod update_attributes;
 mod network_settings;
 mod request_network_settings;
 
@@ -103,6 +104,7 @@ pub enum Packet {
   BlockEvent = 0x1a,
   EntityEvent = 0x1b,
   MobEffect = 0x1c,
+  UpdateAttributes = 0x1d,
   NetworkSettings = 0x8f,
   RequestNetworkSettings = 0xc1,
   
