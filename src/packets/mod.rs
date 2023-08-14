@@ -15,6 +15,7 @@ mod text;
 mod set_time;
 mod start_game;
 mod add_player;
+mod add_entity;
 mod network_settings;
 mod request_network_settings;
 
@@ -65,6 +66,7 @@ pub enum Packet {
   SetTime = 0x0a,
   StartGame = 0x0b,
   AddPlayer = 0x0c,
+  AddEntity = 0x0d,
   NetworkSettings = 0x8f,
   RequestNetworkSettings = 0xc1,
   
