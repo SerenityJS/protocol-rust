@@ -110,6 +110,17 @@ export interface PackIdVersion {
   version: string
   name: string
 }
+export interface ResourcePackClientResponsePacket {
+  status: ResourceResponseStatus
+  packs: Array<string>
+}
+export const enum ResourceResponseStatus {
+  None = 0,
+  Refused = 1,
+  SendPacks = 2,
+  HaveAllPacks = 3,
+  Completed = 4
+}
 export interface StartGamePacket {
   entityId: ZigZong
   runtimeEntityId: VarLong
@@ -420,6 +431,7 @@ export const enum Packet {
   Disconnect = 5,
   ResourcePacksInfo = 6,
   ResourcePacksStack = 7,
+  ResourcePackClientResponse = 8,
   StartGame = 11,
   NetworkSettings = 143,
   RequestNetworkSettings = 193,
@@ -457,6 +469,7 @@ export interface PacketEnumToPacketInjection {
   [Packet.Disconnect]: DisconnectPacket;
   [Packet.ResourcePacksInfo]: ResourcePacksInfoPacket;
   [Packet.ResourcePacksStack]: ResourcePacksStackPacket;
+  [Packet.ResourcePackClientResponse]: ResourcePackClientResponsePacket;
   [Packet.StartGame]: StartGamePacket;
   [Packet.NetworkSettings]: NetworkSettingsPacket;
   [Packet.RequestNetworkSettings]: RequestNetworkSettingsPacket;
