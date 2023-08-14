@@ -469,6 +469,14 @@ export const enum EntityEventType {
   SquidInkCloud = 14,
   ZombieVillagerCure = 15
 }
+export interface MobEffectPacket {
+  runtimeId: VarLong
+  action: number
+  effectId: ZigZag
+  amplifier: ZigZag
+  particles: boolean
+  duration: ZigZag
+}
 export interface NetworkSettingsPacket {
   compressionThreshold: LU16
   compressionAlgorithm: CompressionAlgorithm
@@ -695,6 +703,7 @@ export const enum Packet {
   LevelEvent = 25,
   BlockEvent = 26,
   EntityEvent = 27,
+  MobEffect = 28,
   NetworkSettings = 143,
   RequestNetworkSettings = 193,
   RequestChunkRadius = 69,
@@ -755,6 +764,7 @@ export interface PacketEnumToPacketInjection {
   [Packet.LevelEvent]: LevelEventPacket;
   [Packet.BlockEvent]: BlockEventPacket;
   [Packet.EntityEvent]: EntityEventPacket;
+  [Packet.MobEffect]: MobEffectPacket;
   [Packet.NetworkSettings]: NetworkSettingsPacket;
   [Packet.RequestNetworkSettings]: RequestNetworkSettingsPacket;
   [Packet.RequestChunkRadius]: RequestChunkRadiusPacket;

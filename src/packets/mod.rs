@@ -29,6 +29,7 @@ mod level_sound_event_old;
 mod level_event;
 mod block_event;
 mod entity_event;
+mod mob_effect;
 mod network_settings;
 mod request_network_settings;
 
@@ -101,6 +102,7 @@ pub enum Packet {
   LevelEvent = 0x19,
   BlockEvent = 0x1a,
   EntityEvent = 0x1b,
+  MobEffect = 0x1c,
   NetworkSettings = 0x8f,
   RequestNetworkSettings = 0xc1,
   
