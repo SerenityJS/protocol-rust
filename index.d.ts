@@ -619,6 +619,11 @@ export const enum AnimateActions {
   RowRight = 128,
   RowLeft = 129
 }
+export interface RespawnPacket {
+  position: Vec3F
+  state: number
+  runtimeId: VarLong
+}
 export interface NetworkSettingsPacket {
   compressionThreshold: LU16
   compressionAlgorithm: CompressionAlgorithm
@@ -861,6 +866,7 @@ export const enum Packet {
   SetHealth = 42,
   SetSpawnPosition = 43,
   Animate = 44,
+  Respawn = 45,
   NetworkSettings = 143,
   RequestNetworkSettings = 193,
   RequestChunkRadius = 69,
@@ -937,6 +943,7 @@ export interface PacketEnumToPacketInjection {
   [Packet.SetHealth]: SetHealthPacket;
   [Packet.SetSpawnPosition]: SetSpawnPositionPacket;
   [Packet.Animate]: AnimatePacket;
+  [Packet.Respawn]: RespawnPacket;
   [Packet.NetworkSettings]: NetworkSettingsPacket;
   [Packet.RequestNetworkSettings]: RequestNetworkSettingsPacket;
   [Packet.RequestChunkRadius]: RequestChunkRadiusPacket;

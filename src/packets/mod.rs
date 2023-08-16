@@ -45,6 +45,7 @@ mod set_entity_link;
 mod set_health;
 mod set_spawn_position;
 mod animate;
+mod respawn;
 mod network_settings;
 mod request_network_settings;
 
@@ -133,6 +134,7 @@ pub enum Packet {
   SetHealth = 0x2a,
   SetSpawnPosition = 0x2b,
   Animate = 0x2c,
+  Respawn = 0x2d,
   NetworkSettings = 0x8f,
   RequestNetworkSettings = 0xc1,
   
