@@ -596,10 +596,10 @@ export interface SetHealthPacket {
   health: ZigZag
 }
 export interface SetSpawnPositionPacket {
-  runtimeId: VarLong
-  metadata: MetadataDictionary
-  properties: EntityProperties
-  tick: VarInt
+  spawnType: ZigZag
+  playerPosition: BlockCoordinates
+  dimension: ZigZag
+  worldPosition: BlockCoordinates
 }
 export interface NetworkSettingsPacket {
   compressionThreshold: LU16

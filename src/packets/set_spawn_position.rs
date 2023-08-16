@@ -7,8 +7,8 @@ use crate::packets::{
 
 #[packet(0x2b)]
 pub struct SetSpawnPositionPacket {
-  pub runtime_id: VarLong,
-  pub metadata: MetadataDictionary,
-  pub properties: EntityProperties,
-  pub tick: VarInt,
+  pub spawn_type: ZigZag,
+  pub player_position: BlockCoordinates,
+  pub dimension: ZigZag,
+  pub world_position: BlockCoordinates,
 }
