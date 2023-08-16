@@ -42,6 +42,7 @@ mod hurt_armor;
 mod set_entity_data;
 mod set_entity_motion;
 mod set_entity_link;
+mod set_health;
 mod network_settings;
 mod request_network_settings;
 
@@ -127,6 +128,7 @@ pub enum Packet {
   SetEntityData = 0x27,
   SetEntityMotion = 0x28,
   SetEntityLink = 0x29,
+  SetHealth = 0x2a,
   NetworkSettings = 0x8f,
   RequestNetworkSettings = 0xc1,
   

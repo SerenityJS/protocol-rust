@@ -592,6 +592,9 @@ export interface SetEntityMotionPacket {
 export interface SetEntityLinkPacket {
   link: Link
 }
+export interface SetHealthPacket {
+  health: ZigZag
+}
 export interface NetworkSettingsPacket {
   compressionThreshold: LU16
   compressionAlgorithm: CompressionAlgorithm
@@ -831,6 +834,7 @@ export const enum Packet {
   SetEntityData = 39,
   SetEntityMotion = 40,
   SetEntityLink = 41,
+  SetHealth = 42,
   NetworkSettings = 143,
   RequestNetworkSettings = 193,
   RequestChunkRadius = 69,
@@ -904,6 +908,7 @@ export interface PacketEnumToPacketInjection {
   [Packet.SetEntityData]: SetEntityDataPacket;
   [Packet.SetEntityMotion]: SetEntityMotionPacket;
   [Packet.SetEntityLink]: SetEntityLinkPacket;
+  [Packet.SetHealth]: SetHealthPacket;
   [Packet.NetworkSettings]: NetworkSettingsPacket;
   [Packet.RequestNetworkSettings]: RequestNetworkSettingsPacket;
   [Packet.RequestChunkRadius]: RequestChunkRadiusPacket;
