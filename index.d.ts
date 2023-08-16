@@ -579,6 +579,12 @@ export interface HurtArmorPacket {
   damage: ZigZag
   armorSlot: ZigZag
 }
+export interface SetEntityDataPacket {
+  runtimeId: VarLong
+  metadata: MetadataDictionary
+  properties: EntityProperties
+  tick: VarInt
+}
 export interface NetworkSettingsPacket {
   compressionThreshold: LU16
   compressionAlgorithm: CompressionAlgorithm
@@ -815,6 +821,7 @@ export const enum Packet {
   EntityPickRequest = 35,
   PlayerAction = 36,
   HurtArmor = 37,
+  SetEntityData = 38,
   NetworkSettings = 143,
   RequestNetworkSettings = 193,
   RequestChunkRadius = 69,
@@ -885,6 +892,7 @@ export interface PacketEnumToPacketInjection {
   [Packet.EntityPickRequest]: EntityPickRequestPacket;
   [Packet.PlayerAction]: PlayerActionPacket;
   [Packet.HurtArmor]: HurtArmorPacket;
+  [Packet.SetEntityData]: SetEntityDataPacket;
   [Packet.NetworkSettings]: NetworkSettingsPacket;
   [Packet.RequestNetworkSettings]: RequestNetworkSettingsPacket;
   [Packet.RequestChunkRadius]: RequestChunkRadiusPacket;
