@@ -585,6 +585,10 @@ export interface SetEntityDataPacket {
   properties: EntityProperties
   tick: VarInt
 }
+export interface SetEntityMotionPacket {
+  runtimeId: VarLong
+  velocity: Vec3F
+}
 export interface NetworkSettingsPacket {
   compressionThreshold: LU16
   compressionAlgorithm: CompressionAlgorithm
@@ -822,6 +826,7 @@ export const enum Packet {
   PlayerAction = 36,
   HurtArmor = 37,
   SetEntityData = 38,
+  SetEntityMotion = 39,
   NetworkSettings = 143,
   RequestNetworkSettings = 193,
   RequestChunkRadius = 69,
@@ -893,6 +898,7 @@ export interface PacketEnumToPacketInjection {
   [Packet.PlayerAction]: PlayerActionPacket;
   [Packet.HurtArmor]: HurtArmorPacket;
   [Packet.SetEntityData]: SetEntityDataPacket;
+  [Packet.SetEntityMotion]: SetEntityMotionPacket;
   [Packet.NetworkSettings]: NetworkSettingsPacket;
   [Packet.RequestNetworkSettings]: RequestNetworkSettingsPacket;
   [Packet.RequestChunkRadius]: RequestChunkRadiusPacket;

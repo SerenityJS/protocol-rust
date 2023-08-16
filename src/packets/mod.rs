@@ -40,6 +40,7 @@ mod entity_pick_request;
 mod player_action;
 mod hurt_armor;
 mod set_entity_data;
+mod set_entity_motion;
 mod network_settings;
 mod request_network_settings;
 
@@ -123,6 +124,7 @@ pub enum Packet {
   PlayerAction = 0x24,
   HurtArmor = 0x25,
   SetEntityData = 0x26,
+  SetEntityMotion = 0x27,
   NetworkSettings = 0x8f,
   RequestNetworkSettings = 0xc1,
   
