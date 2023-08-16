@@ -596,10 +596,28 @@ export interface SetHealthPacket {
   health: ZigZag
 }
 export interface SetSpawnPositionPacket {
-  spawnType: ZigZag
+  spawnType: SpawnType
   playerPosition: BlockCoordinates
   dimension: ZigZag
   worldPosition: BlockCoordinates
+}
+export const enum SpawnType {
+  Player = 0,
+  World = 1
+}
+export interface AnimatePacket {
+  action: AnimateActions
+  runtimeId: VarLong
+}
+export const enum AnimateActions {
+  None = 0,
+  SwingArm = 1,
+  Unknown = 2,
+  WakeUp = 3,
+  CriticalHit = 4,
+  MagicCriticalHit = 5,
+  RowRight = 128,
+  RowLeft = 129
 }
 export interface NetworkSettingsPacket {
   compressionThreshold: LU16
@@ -842,6 +860,7 @@ export const enum Packet {
   SetEntityLink = 41,
   SetHealth = 42,
   SetSpawnPosition = 43,
+  Animate = 44,
   NetworkSettings = 143,
   RequestNetworkSettings = 193,
   RequestChunkRadius = 69,
@@ -917,6 +936,7 @@ export interface PacketEnumToPacketInjection {
   [Packet.SetEntityLink]: SetEntityLinkPacket;
   [Packet.SetHealth]: SetHealthPacket;
   [Packet.SetSpawnPosition]: SetSpawnPositionPacket;
+  [Packet.Animate]: AnimatePacket;
   [Packet.NetworkSettings]: NetworkSettingsPacket;
   [Packet.RequestNetworkSettings]: RequestNetworkSettingsPacket;
   [Packet.RequestChunkRadius]: RequestChunkRadiusPacket;
